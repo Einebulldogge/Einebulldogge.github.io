@@ -33,11 +33,11 @@ const HeroSection = () => {
             combining diet, exercise, and medical guidance tailored to your goals.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 pt-4">
-            <Button variant="hero" size="lg" className="text-base px-10">
-              Start Your Journey
+            <Button variant="hero" size="lg" className="text-base px-10" asChild>
+              <Link to="/studio">Start Your Journey</Link>
             </Button>
-            <Button variant="heroOutline" size="lg" className="text-base px-10">
-              See How It Works
+            <Button variant="heroOutline" size="lg" className="text-base px-10" asChild>
+              <a href="#how-it-works">See How It Works</a>
             </Button>
           </div>
         </div>
