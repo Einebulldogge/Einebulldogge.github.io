@@ -1,0 +1,293 @@
+import { useState, useCallback } from "react";
+import { Slider } from "@/components/ui/slider";
+import { Button } from "@/components/ui/button";
+import { Upload, RotateCcw, Download, ChevronLeft } from "lucide-react";
+import { Link } from "react-router-dom";
+import avatarPlaceholder from "@/assets/avatar-placeholder.png";
+
+interface BodySliders {
+  height: number;
+  shoulderWidth: number;
+  chestSize: number;
+  waistSize: number;
+  hipSize: number;
+  armSize: number;
+  legLength: number;
+  muscleTone: number;
+  bodyFat: number;
+  neckSize: number;
+}
+
+const defaultSliders: BodySliders = {
+  height: 50,
+  shoulderWidth: 50,
+  chestSize: 50,
+  waistSize: 50,
+  hipSize: 50,
+  armSize: 50,
+  legLength: 50,
+  muscleTone: 50,
+  bodyFat: 50,
+  neckSize: 50,
+};
+
+const sliderConfig: { key: keyof BodySliders; label: string; icon: string }[] = [
+  { key: "height", label: "Height", icon: "↕" },
+  { key: "shoulderWidth", label: "Shoulder Width", icon: "↔" },
+  { key: "chestSize", label: "Chest", icon: "◻" },
+  { key: "waistSize", label: "Waist", icon: "◇" },
+  { key: "hipSize", label: "Hips", icon: "◯" },
+  { key: "armSize", label: "Arms", icon: "💪" },
+  { key: "legLength", label: "Legs", icon: "🦵" },
+  { key: "muscleTone", label: "Muscle Tone", icon: "⚡" },
+  { key: "bodyFat", label: "Body Fat %", icon: "📊" },
+  { key: "neckSize", label: "Neck", icon: "○" },
+];
+
+const StudioPage = () => {
+  const [sliders, setSliders] = useState<BodySliders>(defaultSliders);
+  const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+
+  const handleSliderChange = useCallback((key: keyof BodySliders, value: number[]) => {
+    setSliders((prev) => ({ ...prev, [key]: value[0] }));
+  }, []);
+
+  const handleReset = () => setSliders(defaultSliders);
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (ev) => setUploadedImage(ev.target?.result as string);
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Compute CSS transforms based on slider values
+  const avatarTransforms = {
+    scaleY: 0.85 + (sliders.height / 100) * 0.3,
+    scaleX: 0.9 + (sliders.shoulderWidth / 100) * 0.2,
+  };
+
+  // Body part transforms for the overlay visualization
+  const chestScale = 0.85 + (sliders.chestSize / 100) * 0.3;
+  const waistScale = 0.85 + (sliders.waistSize / 100) * 0.3;
+  const hipScale = 0.85 + (sliders.hipSize / 100) * 0.3;
+
+  return (
+    <div className="min-h-screen bg-background flex flex-col">
+      {/* Header */}
+      <header className="h-14 border-b border-border flex items-center px-4 gap-4 flex-shrink-0">
+        <Link to="/" className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
+          <ChevronLeft className="h-4 w-4" />
+          <span className="text-sm font-body">Back</span>
+        </Link>
+        <div className="flex-1 text-center">
+          <span className="font-display text-lg font-bold text-gradient-gold">Taylour Studio</span>
+        </div>
+        <Button variant="hero" size="sm" className="text-xs">
+          <Download className="h-3 w-3 mr-1" />
+          Save
+        </Button>
+      </header>
+
+      <div className="flex-1 flex overflow-hidden">
+        {/* Tools Sidebar */}
+        <aside className="w-72 lg:w-80 border-r border-border bg-card overflow-y-auto flex-shrink-0">
+          <div className="p-5 space-y-6">
+            {/* Upload Section */}
+            <div className="space-y-3">
+              <h3 className="font-display text-sm font-semibold text-foreground uppercase tracking-wider">
+                Your Photo
+              </h3>
+              <label className="flex flex-col items-center justify-center h-28 rounded-xl border-2 border-dashed border-border hover:border-primary/40 cursor-pointer transition-colors bg-muted/30">
+                <Upload className="h-5 w-5 text-muted-foreground mb-2" />
+                <span className="text-xs text-muted-foreground font-body">
+                  {uploadedImage ? "Change photo" : "Upload a photo"}
+                </span>
+                <input type="file" accept="image/*" className="hidden" onChange={handleFileUpload} />
+              </label>
+            </div>
+
+            {/* Divider */}
+            <div className="h-px bg-border" />
+
+            {/* Body Modification Tools */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <h3 className="font-display text-sm font-semibold text-foreground uppercase tracking-wider">
+                  Body Tools
+                </h3>
+                <button
+                  onClick={handleReset}
+                  className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors font-body"
+                >
+                  <RotateCcw className="h-3 w-3" />
+                  Reset
+                </button>
+              </div>
+
+              <div className="space-y-5 pt-2">
+                {sliderConfig.map(({ key, label, icon }) => (
+                  <div key={key} className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-medium text-foreground/80 font-body flex items-center gap-2">
+                        <span className="text-sm">{icon}</span>
+                        {label}
+                      </label>
+                      <span className="text-xs text-muted-foreground font-body tabular-nums">
+                        {sliders[key]}%
+                      </span>
+                    </div>
+                    <Slider
+                      value={[sliders[key]]}
+                      onValueChange={(v) => handleSliderChange(key, v)}
+                      max={100}
+                      min={0}
+                      step={1}
+                      className="cursor-pointer"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Divider */}
+            <div className="h-px bg-border" />
+
+            {/* Goal Breakdown */}
+            <div className="space-y-3">
+              <h3 className="font-display text-sm font-semibold text-foreground uppercase tracking-wider">
+                Path to Goal
+              </h3>
+              <div className="space-y-2">
+                {[
+                  { label: "Diet", pct: 40, color: "bg-green-500" },
+                  { label: "Exercise", pct: 35, color: "bg-blue-500" },
+                  { label: "Medical", pct: 15, color: "bg-amber-500" },
+                  { label: "Supplements", pct: 10, color: "bg-pink-500" },
+                ].map((item) => (
+                  <div key={item.label} className="space-y-1">
+                    <div className="flex justify-between text-xs font-body">
+                      <span className="text-foreground/80">{item.label}</span>
+                      <span className="text-muted-foreground">{item.pct}%</span>
+                    </div>
+                    <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+                      <div
+                        className={`h-full rounded-full ${item.color} transition-all`}
+                        style={{ width: `${item.pct}%` }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        {/* Canvas / Avatar Area */}
+        <main className="flex-1 flex items-center justify-center relative bg-background overflow-hidden">
+          {/* Grid background */}
+          <div
+            className="absolute inset-0 opacity-[0.03]"
+            style={{
+              backgroundImage: "radial-gradient(circle, hsl(var(--foreground)) 1px, transparent 1px)",
+              backgroundSize: "24px 24px",
+            }}
+          />
+
+          <div className="relative flex flex-col items-center gap-6">
+            {/* Before / After Labels */}
+            <div className="flex gap-16 text-xs uppercase tracking-[0.2em] text-muted-foreground font-body">
+              <span>Current</span>
+              <span className="text-primary">Goal</span>
+            </div>
+
+            <div className="flex items-end gap-8 md:gap-16">
+              {/* Current (original) */}
+              <div className="flex flex-col items-center gap-3">
+                <div className="relative w-40 h-72 md:w-48 md:h-80 rounded-2xl border border-border bg-card/50 overflow-hidden flex items-center justify-center">
+                  <img
+                    src={uploadedImage || avatarPlaceholder}
+                    alt="Current you"
+                    className="w-full h-full object-contain p-2"
+                    style={{ filter: uploadedImage ? "none" : "none" }}
+                  />
+                  {!uploadedImage && (
+                    <div className="absolute bottom-3 left-3 right-3 text-center">
+                      <span className="text-[10px] text-muted-foreground font-body bg-background/80 px-2 py-1 rounded-md">
+                        Upload photo to see your cartoon
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Transformation arrow */}
+              <div className="flex flex-col items-center gap-2 pb-20">
+                <div className="w-12 h-px bg-gradient-to-r from-border via-primary to-border" />
+                <span className="text-[10px] text-primary font-body uppercase tracking-wider">Transform</span>
+                <div className="w-12 h-px bg-gradient-to-r from-border via-primary to-border" />
+              </div>
+
+              {/* Goal (transformed) */}
+              <div className="flex flex-col items-center gap-3">
+                <div className="relative w-40 h-72 md:w-48 md:h-80 rounded-2xl border border-primary/30 bg-card/50 overflow-hidden flex items-center justify-center shadow-gold">
+                  <img
+                    src={uploadedImage || avatarPlaceholder}
+                    alt="Goal you"
+                    className="w-full h-full object-contain p-2 transition-transform duration-300"
+                    style={{
+                      transform: `scaleX(${avatarTransforms.scaleX}) scaleY(${avatarTransforms.scaleY})`,
+                    }}
+                  />
+                  {/* Overlay indicators for body modifications */}
+                  <div className="absolute inset-0 pointer-events-none">
+                    {/* Chest indicator */}
+                    <div
+                      className="absolute left-1/2 -translate-x-1/2 border border-primary/20 rounded-full transition-all duration-300"
+                      style={{
+                        top: "28%",
+                        width: `${chestScale * 60}%`,
+                        height: "12%",
+                        background: "hsl(var(--primary) / 0.05)",
+                      }}
+                    />
+                    {/* Waist indicator */}
+                    <div
+                      className="absolute left-1/2 -translate-x-1/2 border border-primary/20 rounded-full transition-all duration-300"
+                      style={{
+                        top: "45%",
+                        width: `${waistScale * 45}%`,
+                        height: "10%",
+                        background: "hsl(var(--primary) / 0.05)",
+                      }}
+                    />
+                    {/* Hip indicator */}
+                    <div
+                      className="absolute left-1/2 -translate-x-1/2 border border-primary/20 rounded-full transition-all duration-300"
+                      style={{
+                        top: "55%",
+                        width: `${hipScale * 55}%`,
+                        height: "10%",
+                        background: "hsl(var(--primary) / 0.05)",
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Status text */}
+            <p className="text-xs text-muted-foreground font-body max-w-md text-center">
+              Adjust the sliders on the left to visualize your transformation goals.
+              Your photo stays completely private — only you can see it.
+            </p>
+          </div>
+        </main>
+      </div>
+    </div>
+  );
+};
+
+export default StudioPage;
