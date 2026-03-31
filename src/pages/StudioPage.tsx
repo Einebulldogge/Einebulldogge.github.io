@@ -236,7 +236,10 @@ const StudioPage = () => {
 
               {/* Goal (transformed) */}
               <div className="flex flex-col items-center gap-3">
-                <div className="relative w-40 h-72 md:w-48 md:h-80 rounded-2xl border border-primary/30 bg-card/50 overflow-hidden flex items-center justify-center shadow-gold">
+                <div
+                  className="relative w-40 h-72 md:w-48 md:h-80 rounded-2xl border border-primary/30 bg-card/50 overflow-hidden flex items-center justify-center shadow-gold cursor-pointer group"
+                  onClick={() => setZoomOpen(true)}
+                >
                   <img
                     src={uploadedImage || avatarPlaceholder}
                     alt="Goal you"
@@ -247,36 +250,22 @@ const StudioPage = () => {
                   />
                   {/* Overlay indicators for body modifications */}
                   <div className="absolute inset-0 pointer-events-none">
-                    {/* Chest indicator */}
                     <div
                       className="absolute left-1/2 -translate-x-1/2 border border-primary/20 rounded-full transition-all duration-300"
-                      style={{
-                        top: "28%",
-                        width: `${chestScale * 60}%`,
-                        height: "12%",
-                        background: "hsl(var(--primary) / 0.05)",
-                      }}
+                      style={{ top: "28%", width: `${chestScale * 60}%`, height: "12%", background: "hsl(var(--primary) / 0.05)" }}
                     />
-                    {/* Waist indicator */}
                     <div
                       className="absolute left-1/2 -translate-x-1/2 border border-primary/20 rounded-full transition-all duration-300"
-                      style={{
-                        top: "45%",
-                        width: `${waistScale * 45}%`,
-                        height: "10%",
-                        background: "hsl(var(--primary) / 0.05)",
-                      }}
+                      style={{ top: "45%", width: `${waistScale * 45}%`, height: "10%", background: "hsl(var(--primary) / 0.05)" }}
                     />
-                    {/* Hip indicator */}
                     <div
                       className="absolute left-1/2 -translate-x-1/2 border border-primary/20 rounded-full transition-all duration-300"
-                      style={{
-                        top: "55%",
-                        width: `${hipScale * 55}%`,
-                        height: "10%",
-                        background: "hsl(var(--primary) / 0.05)",
-                      }}
+                      style={{ top: "55%", width: `${hipScale * 55}%`, height: "10%", background: "hsl(var(--primary) / 0.05)" }}
                     />
+                  </div>
+                  {/* Zoom hint */}
+                  <div className="absolute inset-0 flex items-center justify-center bg-background/40 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <span className="text-xs text-primary font-body font-medium">Click to zoom & edit</span>
                   </div>
                 </div>
               </div>
