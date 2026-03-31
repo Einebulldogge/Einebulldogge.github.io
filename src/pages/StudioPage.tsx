@@ -279,6 +279,18 @@ const StudioPage = () => {
           </div>
         </main>
       </div>
+
+      {/* Zoom Detail View */}
+      {zoomOpen && (
+        <ZoomView
+          imageSrc={uploadedImage || avatarPlaceholder}
+          detailSliders={detailSliders}
+          onSliderChange={(key, value) => setDetailSliders((prev) => ({ ...prev, [key]: value }))}
+          onClose={() => setZoomOpen(false)}
+          activeZone={activeZone}
+          onZoneClick={setActiveZone}
+        />
+      )}
     </div>
   );
 };
