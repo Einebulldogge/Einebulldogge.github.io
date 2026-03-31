@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Upload, RotateCcw, Download, ChevronLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import avatarPlaceholder from "@/assets/avatar-placeholder.png";
+import ZoomView from "@/components/studio/ZoomView";
 
 interface BodySliders {
   height: number;
