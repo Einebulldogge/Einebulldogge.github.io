@@ -68,15 +68,27 @@ const StudioPage = () => {
   };
 
   // Compute CSS transforms based on slider values
+  const sv = (key: keyof BodySliders) => sliders[key] / 100; // 0-1
+
   const avatarTransforms = {
-    scaleY: 0.85 + (sliders.height / 100) * 0.3,
-    scaleX: 0.9 + (sliders.shoulderWidth / 100) * 0.2,
+    scaleY: 0.85 + sv("height") * 0.3,
+    scaleX: 0.9 + sv("shoulderWidth") * 0.2,
   };
 
   // Body part transforms for the overlay visualization
-  const chestScale = 0.85 + (sliders.chestSize / 100) * 0.3;
-  const waistScale = 0.85 + (sliders.waistSize / 100) * 0.3;
-  const hipScale = 0.85 + (sliders.hipSize / 100) * 0.3;
+  const chestScale = 0.85 + sv("chestSize") * 0.3;
+  const waistScale = 1.15 - sv("waistSize") * 0.3; // inverse: higher = slimmer waist
+  const hipScale = 0.85 + sv("hipSize") * 0.3;
+
+  // Muscle & skin effects on goal avatar
+  const muscleTone = sv("muscleTone");
+  const bodyFat = sv("bodyFat");
+  const goalContrast = 0.85 + muscleTone * 0.35;
+  const goalSaturate = 0.9 + muscleTone * 0.25;
+  const goalBrightness = 1.05 - bodyFat * 0.15; // leaner = slightly brighter/sharper
+  const goalBlur = (1 - muscleTone) * 0.3; // more toned = sharper
+
+  const goalFilter = `contrast(${goalContrast}) saturate(${goalSaturate}) brightness(${goalBrightness}) blur(${goalBlur}px)`;
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -243,9 +255,10 @@ const StudioPage = () => {
                   <img
                     src={uploadedImage || avatarPlaceholder}
                     alt="Goal you"
-                    className="w-full h-full object-contain p-2 transition-transform duration-300"
+                    className="w-full h-full object-contain p-2 transition-all duration-300"
                     style={{
                       transform: `scaleX(${avatarTransforms.scaleX}) scaleY(${avatarTransforms.scaleY})`,
+                      filter: goalFilter,
                     }}
                   />
                   {/* Overlay indicators for body modifications */}

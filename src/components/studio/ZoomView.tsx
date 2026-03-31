@@ -124,14 +124,64 @@ const ZoomView = ({ imageSrc, detailSliders, onSliderChange, onClose, activeZone
       }, {})
     : {};
 
-  // Compute zoom crop style for the image
-  const getZoomStyle = () => {
-    if (!activeConfig) {
-      return { transform: "scale(1)", transformOrigin: "50% 50%" };
+  const v = (key: string) => (detailSliders[key] ?? 50) / 100; // 0-1 normalized
+
+  // Compute visual effects from all sliders
+  const getImageStyle = (): React.CSSProperties => {
+    // --- Shape transforms ---
+    const shoulderW = 0.9 + v("shoulderWidth") * 0.2;
+    const chestW = 0.9 + v("chestSize") * 0.2;
+    const waistW = 1.1 - v("waistSize") * 0.2; // inverse: higher = slimmer
+    const hipW = 0.9 + v("hipSize") * 0.2;
+    const jawDef = 0.95 + v("jawline") * 0.1;
+    const faceW = 0.9 + v("faceWidth") * 0.2;
+    const gluteS = 0.95 + v("gluteSize") * 0.1;
+    const thighS = 0.95 + v("thighSize") * 0.1;
+    const neckW = 0.95 + v("neckSize") * 0.1;
+    const vTaper = v("vTaper");
+    const loveHandles = 1.05 - v("loveHandles") * 0.1; // higher = less love handles
+
+    // Composite shape: average relevant shape sliders for current zone
+    let scaleX = 1;
+    let scaleY = 1;
+    if (activeZone === "head") {
+      scaleX = (jawDef + faceW + neckW) / 3;
+      scaleY = 0.95 + v("chinDefinition") * 0.1;
+    } else if (activeZone === "upper") {
+      scaleX = (shoulderW + chestW) / 2;
+      scaleY = 0.95 + v("upperBack") * 0.1;
+    } else if (activeZone === "core") {
+      scaleX = (waistW + loveHandles) / 2;
+      scaleY = 0.95 + vTaper * 0.1;
+    } else if (activeZone === "lower") {
+      scaleX = (hipW + gluteS + thighS) / 3;
+      scaleY = 0.95 + v("calfSize") * 0.1;
     }
+
+    // --- Muscle effects (contrast & sharpness) ---
+    const muscleToneKeys = activeConfig?.sliders.filter(s => s.category === "muscle").map(s => s.key) || [];
+    const avgMuscleTone = muscleToneKeys.length > 0
+      ? muscleToneKeys.reduce((sum, k) => sum + v(k), 0) / muscleToneKeys.length
+      : 0.5;
+    const contrast = 0.85 + avgMuscleTone * 0.35; // 0.85 to 1.2
+    const saturate = 0.9 + avgMuscleTone * 0.3; // 0.9 to 1.2
+
+    // --- Skin effects (smoothing & brightness) ---
+    const skinKeys = activeConfig?.sliders.filter(s => s.category === "skin").map(s => s.key) || [];
+    const avgSkinSmooth = skinKeys.length > 0
+      ? skinKeys.reduce((sum, k) => sum + v(k), 0) / skinKeys.length
+      : 0.5;
+    const blur = avgSkinSmooth * 0.8; // 0 to 0.8px blur for smoothing
+    const brightness = 0.95 + avgSkinSmooth * 0.12; // subtle glow
+
+    const baseZoom = activeConfig
+      ? { transform: `scale(${activeConfig.imageScale}) scaleX(${scaleX}) scaleY(${scaleY})`, transformOrigin: activeConfig.objectPosition }
+      : { transform: "scale(1) scaleX(1) scaleY(1)", transformOrigin: "50% 50%" };
+
     return {
-      transform: `scale(${activeConfig.imageScale})`,
-      transformOrigin: activeConfig.objectPosition,
+      ...baseZoom,
+      filter: `contrast(${contrast}) saturate(${saturate}) brightness(${brightness}) blur(${blur}px)`,
+      transition: "all 0.5s ease-out",
     };
   };
 
@@ -292,7 +342,7 @@ const ZoomView = ({ imageSrc, detailSliders, onSliderChange, onClose, activeZone
               src={imageSrc}
               alt="Zoomed goal avatar"
               className="w-full h-full object-cover transition-all duration-500 ease-out"
-              style={getZoomStyle()}
+              style={getImageStyle()}
             />
           </div>
 
