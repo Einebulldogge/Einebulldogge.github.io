@@ -342,7 +342,7 @@ const ZoomView = ({ imageSrc, detailSliders, onSliderChange, onClose, activeZone
               src={imageSrc}
               alt="Zoomed goal avatar"
               className="w-full h-full object-cover transition-all duration-500 ease-out"
-              style={getZoomStyle()}
+              style={getImageStyle()}
             />
           </div>
 
