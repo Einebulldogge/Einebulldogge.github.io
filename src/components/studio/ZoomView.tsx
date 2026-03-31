@@ -61,7 +61,7 @@ const zoneConfig: {
     objectPosition: "50% 52%",
     imageScale: 2.6,
     top: "45%",
-    height: "15%",
+    height: "30%",
     sliders: [
       { key: "waistSize", label: "Waist Size", category: "shape" },
       { key: "abDefinition", label: "Ab Definition", category: "muscle" },
