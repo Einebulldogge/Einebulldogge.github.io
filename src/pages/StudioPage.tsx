@@ -47,6 +47,9 @@ const sliderConfig: { key: keyof BodySliders; label: string; icon: string }[] = 
 const StudioPage = () => {
   const [sliders, setSliders] = useState<BodySliders>(defaultSliders);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+  const [zoomOpen, setZoomOpen] = useState(false);
+  const [detailSliders, setDetailSliders] = useState<Record<string, number>>({});
+  const [activeZone, setActiveZone] = useState<string | null>(null);
 
   const handleSliderChange = useCallback((key: keyof BodySliders, value: number[]) => {
     setSliders((prev) => ({ ...prev, [key]: value[0] }));
