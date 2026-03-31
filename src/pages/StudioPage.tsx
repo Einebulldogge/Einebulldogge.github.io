@@ -255,9 +255,10 @@ const StudioPage = () => {
                   <img
                     src={uploadedImage || avatarPlaceholder}
                     alt="Goal you"
-                    className="w-full h-full object-contain p-2 transition-transform duration-300"
+                    className="w-full h-full object-contain p-2 transition-all duration-300"
                     style={{
                       transform: `scaleX(${avatarTransforms.scaleX}) scaleY(${avatarTransforms.scaleY})`,
+                      filter: goalFilter,
                     }}
                   />
                   {/* Overlay indicators for body modifications */}
