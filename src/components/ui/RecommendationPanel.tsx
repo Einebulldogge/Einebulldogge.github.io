@@ -1,10 +1,8 @@
 // src/components/studio/RecommendationPanel.tsx
-// Drop-in replacement — no API key needed. Uses a hardcoded demo response.
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
-import { Sparkles, Loader2 } from "lucide-react";
+import { Sparkles, Loader2, Download, RefreshCcw } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 
 interface RecommendationPanelProps {
@@ -32,102 +30,54 @@ const pathIcons: Record<string, string> = {
   supplements: "💊",
 };
 
-// ─── Demo response ────────────────────────────────────────────────────────────
-// This is what the AI would return for someone who wants to:
-//   - Increase muscle tone & shoulder width significantly
-//   - Decrease body fat & waist size
-//   - Slight increase in chest & arm size
-// Approach: 40% exercise, 35% diet, 15% supplements, 10% medical
+// ─── Premium Clinical Demo Response ────────────────────────────────────────────
 const DEMO_RESULT = {
   summary:
-    "Your plan focuses on building a lean, athletic physique — reducing body fat while adding visible muscle definition in your shoulders, chest, and arms. The heavy exercise emphasis means you'll train hard and eat precisely to fuel that work.",
+    "Protocol Alpha: Your plan focuses on optimizing biomarkers and achieving metabolic flexibility. Based on your inputs, we are prioritizing hyper-targeted hypertrophy paired with a strict 16:8 nutritional window to accelerate body recomposition.",
 
-  diet: `**Caloric target:** ~2,400 kcal/day (slight deficit to lose fat while preserving muscle)
-
+  diet: `**Caloric target:** ~2,400 kcal/day (Controlled deficit for lipolysis while preventing sarcopenia)
 **Macros:** 200g protein · 240g carbs · 65g fat
 
-**What to eat:**
-- **Breakfast:** 4 scrambled eggs + oats with blueberries + black coffee
-- **Pre-workout:** Banana + 1 scoop whey protein in water
-- **Lunch:** 200g grilled chicken breast, 1 cup brown rice, steamed broccoli with olive oil
-- **Post-workout:** Greek yogurt (plain, full-fat) + 30g mixed nuts
-- **Dinner:** 180g salmon or lean beef, roasted sweet potato, large leafy salad with lemon dressing
+**Protocol Directives:**
+* **Protein Threshold:** Target 1.8g/kg of lean body mass.
+* **Fasting Window:** Implement a 16:8 Time-Restricted Feeding schedule.
+* **Micronutrients:** Increase intake of sulforaphane (cruciferous vegetables) for Nrf2 activation and cellular defense.
+* **Restriction:** Complete cessation of ultra-processed seed oils and refined fructose to minimize systemic inflammation.`,
 
-**Foods to cut:** Alcohol, fried foods, sugary drinks, ultra-processed snacks — these directly raise cortisol and stall fat loss.
+  exercise: `**Weekly Split (Optimization Focus):**
 
-**Meal timing:** Eat every 3–4 hours. Don't skip post-workout nutrition within 45 minutes of training.`,
+* **Zone 2 Stability (Cardio):** 150 minutes per week at Heart Rate Zone 2 to increase mitochondrial density.
+* **V02 Max Loading:** 1 session of 4x4 Norwegian intervals per week to expand cardiovascular capacity.
+* **Hypertrophy (Resistance):** 3 sessions of heavy compound movements. Focus on progressive overload in the 5-8 rep range.
+* **Neurological Recovery:** 1 day dedicated to active mobility and CNS (Central Nervous System) recovery.`,
 
-  exercise: `**Weekly split (5 days):**
+  medical: `**Baseline Blood Panel Requirements:**
+To ensure protocol efficacy, request the following from your physician:
+* **ApoB & Lp(a):** Critical markers for cardiovascular risk assessment.
+* **HbA1c & Fasting Insulin:** To measure baseline metabolic flexibility.
+* **Free Testosterone & Thyroid Cascade (TSH, free T3/T4):** To rule out endocrine bottlenecks stalling your fat loss.
 
-**Monday — Push (Chest/Shoulders/Triceps)**
-- Barbell bench press: 4×6 @ 75% 1RM
-- Overhead dumbbell press: 3×10
-- Lateral raises: 4×15 (slow negatives)
-- Cable flyes: 3×12
-- Tricep rope pushdown: 3×15
+**Next Check-in:** Retest biomarkers in exactly 12 weeks to quantify the protocol's systemic impact.`,
 
-**Tuesday — Pull (Back/Biceps)**
-- Pull-ups (weighted if possible): 4×6
-- Barbell row: 4×8
-- Face pulls: 3×15 (critical for shoulder health)
-- Hammer curls: 3×12 each arm
+  supplements: `**Daily Baseline Stack:**
 
-**Wednesday — Active recovery** (20-min walk + mobility)
+1.  **AM:** Vitamin D3 (5000 IU) + Vitamin K2 (100mcg) with a fat source to optimize absorption.
+2.  **AM:** Creatine Monohydrate (5g). #1 evidence-backed supplement for intracellular hydration and ATP production.
+3.  **PM:** Magnesium Glycinate or Threonate (400mg) 60 minutes before bed to enhance sleep architecture.
+4.  **PM (Optional):** Apigenin (50mg) to further down-regulate the nervous system pre-sleep.
 
-**Thursday — Legs**
-- Barbell squat: 4×6
-- Romanian deadlift: 3×10
-- Leg press: 3×12
-- Calf raises: 4×20
+*Skip redundant BCAAs and thermogenic fat burners. Capital allocation is better spent on whole foods.*`,
 
-**Friday — Shoulders & Arms (hypertrophy focus)**
-- Arnold press: 4×10
-- Rear delt flyes: 3×15
-- Barbell curl: 4×10
-- Overhead tricep extension: 3×12
-
-**Cardio:** 20 min moderate-intensity (bike or incline walk) after each session to accelerate fat loss without muscle loss.`,
-
-  medical: `**Bloodwork to request from your doctor before starting:**
-- Testosterone (total + free) — low T significantly impairs muscle growth
-- Thyroid panel (TSH, T3, T4) — thyroid dysfunction makes fat loss nearly impossible
-- Vitamin D & B12 — deficiencies tank energy and recovery
-- Complete metabolic panel — establishes your baseline
-
-**Who to see:**
-- **Sports medicine doctor or registered dietitian** — to confirm your caloric targets are right for your body
-- **Physical therapist** (optional but recommended) — a movement screen can catch imbalances before they become injuries, especially shoulder impingement which is common when prioritizing shoulder/chest growth
-
-**When to check in:** Retest bloodwork after 12 weeks to track hormonal response to training.`,
-
-  supplements: `**Daily stack (in order of impact):**
-
-1. **Creatine monohydrate** — 5g every morning with water. #1 evidence-backed supplement for strength and muscle volume. Takes ~2 weeks to saturate.
-
-2. **Whey protein isolate** — 25–30g within 45 min post-workout. Use only if you're struggling to hit 200g protein from food alone.
-
-3. **Vitamin D3 + K2** — 3,000 IU D3 + 100mcg K2 daily with a fatty meal. Most people are deficient; it affects testosterone and immune function.
-
-4. **Magnesium glycinate** — 400mg before bed. Improves sleep quality and recovery, reduces muscle cramping.
-
-5. **Caffeine (optional)** — 150–200mg 30 min before workouts for performance. Coffee works fine — no need for a pre-workout product.
-
-**Skip:** Fat burners, testosterone boosters, BCAAs (redundant if protein is adequate). Save your money.`,
-
-  timeline: `**Month 1:** Neural adaptation — strength increases rapidly even before visible muscle. Expect 2–4 lbs of fat loss if diet is consistent.
-
-**Month 2–3:** Visible changes begin. Shoulders and arms respond fastest. Waist definition starts to emerge. Expect 1–1.5 lbs fat loss/week.
-
-**Month 4–6:** The "click" phase — muscle definition becomes obvious, especially in shoulders and chest. Body fat visibly lower.
-
-**Month 6+:** Major physique transformation visible. Most people hit their target look in 6–9 months with consistent adherence.`,
+  timeline: `**Phase 1 (Weeks 1-4):** Neurological adaptation and insulin sensitivity baseline correction.
+**Phase 2 (Weeks 5-8):** Visible lipolysis (fat loss) and increased mitochondrial capacity.
+**Phase 3 (Weeks 9-12):** Major physique transformation visible. Biomarkers ready for re-testing.`,
 
   disclaimer:
-    "This plan is for informational purposes only. Consult a physician or certified healthcare professional before starting any new diet, exercise, or supplement regimen.",
+    "This algorithmic protocol is for informational purposes only. Consult a clinical physician before beginning any advanced nutritional or physical regimen.",
 };
 // ─────────────────────────────────────────────────────────────────────────────
 
-const RecommendationPanel = ({ bodyGoals }: RecommendationPanelProps) => {
+export function RecommendationPanel({ bodyGoals }: RecommendationPanelProps) {
   const [paths, setPaths] = useState<PathPreferences>({
     diet: 35,
     exercise: 40,
@@ -136,7 +86,24 @@ const RecommendationPanel = ({ bodyGoals }: RecommendationPanelProps) => {
   });
 
   const [loading, setLoading] = useState(false);
+  const [loadingPhase, setLoadingPhase] = useState(0);
   const [result, setResult] = useState<typeof DEMO_RESULT | null>(null);
+
+  const loadingMessages = [
+    "Analyzing biometrics...",
+    "Cross-referencing longevity markers...",
+    "Optimizing macros & workout split...",
+    "Finalizing personalized protocol...",
+  ];
+
+  // Cycling text effect for the loading state
+  useEffect(() => {
+    if (!loading) return;
+    const interval = setInterval(() => {
+      setLoadingPhase((prev) => (prev < loadingMessages.length - 1 ? prev + 1 : prev));
+    }, 600);
+    return () => clearInterval(interval);
+  }, [loading]);
 
   const handlePathChange = (key: keyof PathPreferences, value: number[]) => {
     const newVal = value[0];
@@ -164,37 +131,40 @@ const RecommendationPanel = ({ bodyGoals }: RecommendationPanelProps) => {
 
   const handleGenerate = () => {
     setLoading(true);
+    setLoadingPhase(0);
     setResult(null);
-    // Simulate a 2-second "thinking" delay to make it feel real
+    
+    // Simulate a 2.5-second deep "thinking" delay
     setTimeout(() => {
       setLoading(false);
       setResult(DEMO_RESULT);
-    }, 2000);
+    }, 2500);
   };
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="font-display text-sm font-semibold text-foreground uppercase tracking-wider">
-          Path to Goal
+        <h3 className="font-display text-sm font-semibold text-foreground uppercase tracking-wider flex items-center gap-2">
+          <Sparkles className="h-4 w-4 text-primary" />
+          AI Path Customization
         </h3>
       </div>
 
-      {/* Path preference sliders */}
-      <div className="space-y-2">
+      {/* Path preference sliders (Kept exactly as you built them) */}
+      <div className="space-y-2 p-4 border rounded-lg bg-card shadow-sm">
         {(Object.keys(paths) as (keyof PathPreferences)[]).map((key) => (
           <div key={key} className="space-y-1">
             <div className="flex justify-between text-xs font-body">
               <span className="text-foreground/80 flex items-center gap-1.5">
                 <span>{pathIcons[key]}</span>
-                {key.charAt(0).toUpperCase() + key.slice(1)}
+                <span className="capitalize font-medium">{key}</span>
               </span>
-              <span className="text-muted-foreground tabular-nums">{paths[key]}%</span>
+              <span className="text-muted-foreground tabular-nums font-medium">{paths[key]}%</span>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="h-1.5 rounded-full bg-muted overflow-hidden flex-1">
+            <div className="flex items-center gap-3">
+              <div className="h-2 rounded-full bg-muted overflow-hidden flex-1 shadow-inner">
                 <div
-                  className={`h-full rounded-full ${pathColors[key]} transition-all`}
+                  className={`h-full rounded-full ${pathColors[key]} transition-all duration-300`}
                   style={{ width: `${paths[key]}%` }}
                 />
               </div>
@@ -209,7 +179,7 @@ const RecommendationPanel = ({ bodyGoals }: RecommendationPanelProps) => {
             </div>
           </div>
         ))}
-        <p className="text-[9px] text-muted-foreground/60 font-body text-center">
+        <p className="text-[10px] text-muted-foreground/60 font-body text-center pt-2">
           Total always equals 100% — adjusting one redistributes the rest.
         </p>
       </div>
@@ -218,61 +188,85 @@ const RecommendationPanel = ({ bodyGoals }: RecommendationPanelProps) => {
       <Button
         onClick={handleGenerate}
         disabled={loading}
-        variant="hero"
-        size="sm"
-        className="w-full text-xs"
+        className="w-full py-6 transition-all hover:scale-[1.01] shadow-md"
       >
         {loading ? (
           <>
-            <Loader2 className="h-3 w-3 mr-1.5 animate-spin" />
-            Analyzing your goals...
+            <Loader2 className="h-5 w-5 mr-2 animate-spin text-primary-foreground" />
+            <span className="animate-pulse">{loadingMessages[loadingPhase]}</span>
           </>
         ) : (
           <>
-            <Sparkles className="h-3 w-3 mr-1.5" />
-            Get AI Recommendation
+            <Sparkles className="h-5 w-5 mr-2" />
+            Generate Longevity Protocol
           </>
         )}
       </Button>
 
-      {/* Results */}
-      {result && (
-        <div className="space-y-3 animate-fade-in">
-          <div className="p-3 rounded-lg border border-primary/20 bg-primary/5">
-            <p className="text-xs font-body text-foreground font-medium">{result.summary}</p>
+      {/* Premium Results Wrapper */}
+      {loading && !result && (
+        <div className="mt-6 p-8 rounded-xl border border-primary/20 bg-gradient-to-b from-card to-secondary/10 flex flex-col items-center justify-center space-y-4 animate-in fade-in zoom-in-95">
+           <div className="relative">
+             <Loader2 className="h-10 w-10 animate-spin text-primary opacity-30" />
+             <Sparkles className="h-4 w-4 text-primary absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse" />
+           </div>
+           <p className="text-sm font-medium text-muted-foreground uppercase tracking-widest text-center">
+             Synthesizing Data
+           </p>
+        </div>
+      )}
+
+      {result && !loading && (
+        <div className="mt-6 overflow-hidden rounded-xl border bg-gradient-to-b from-card to-secondary/10 shadow-lg animate-in fade-in slide-in-from-bottom-4 duration-500">
+          
+          {/* Header Ribbon */}
+          <div className="bg-primary/10 px-4 py-2 border-b border-primary/20 flex justify-between items-center">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-primary">Biometric Analysis Result</span>
+            <span className="text-[10px] text-muted-foreground">Generated {new Date().toLocaleDateString()}</span>
           </div>
 
-          {result.timeline && (
-            <div className="p-2.5 rounded-lg bg-muted/50 border border-border">
-              <span className="text-[10px] text-muted-foreground font-body">⏱ </span>
-              <span className="text-[10px] text-foreground font-body">{result.timeline}</span>
+          <div className="p-4 space-y-4">
+            <div className="p-3 rounded-lg border border-primary/20 bg-primary/5 shadow-inner">
+              <p className="text-xs font-body text-foreground font-medium leading-relaxed">{result.summary}</p>
             </div>
-          )}
 
-          {result.diet && (
-            <RecommendationSection icon="🥗" title="Diet" content={result.diet} color="border-green-500/30" />
-          )}
-          {result.exercise && (
-            <RecommendationSection icon="🏋️" title="Exercise" content={result.exercise} color="border-blue-500/30" />
-          )}
-          {result.medical && (
-            <RecommendationSection icon="⚕️" title="Medical" content={result.medical} color="border-amber-500/30" />
-          )}
-          {result.supplements && (
-            <RecommendationSection icon="💊" title="Supplements" content={result.supplements} color="border-pink-500/30" />
-          )}
+            {result.timeline && (
+              <div className="p-2.5 rounded-lg bg-background border shadow-sm">
+                <span className="text-[10px] text-muted-foreground font-body uppercase font-bold tracking-wider mb-1 block">⏱ Projected Timeline</span>
+                <span className="text-[11px] text-foreground font-body whitespace-pre-line leading-relaxed">{result.timeline}</span>
+              </div>
+            )}
 
-          {result.disclaimer && (
-            <p className="text-[9px] text-muted-foreground/60 font-body italic leading-relaxed">
-              ⚠️ {result.disclaimer}
-            </p>
-          )}
+            <div className="grid gap-3">
+              {result.diet && <RecommendationSection icon="🥗" title="Nutrition Protocol" content={result.diet} color="border-green-500/40" />}
+              {result.exercise && <RecommendationSection icon="🏋️" title="Training Regimen" content={result.exercise} color="border-blue-500/40" />}
+              {result.medical && <RecommendationSection icon="⚕️" title="Medical Baseline" content={result.medical} color="border-amber-500/40" />}
+              {result.supplements && <RecommendationSection icon="💊" title="Supplementation" content={result.supplements} color="border-pink-500/40" />}
+            </div>
+
+            {result.disclaimer && (
+              <p className="text-[10px] text-muted-foreground/70 font-body italic leading-relaxed pt-2">
+                ⚠️ {result.disclaimer}
+              </p>
+            )}
+
+            {/* Action Footer */}
+            <div className="mt-4 pt-4 border-t flex justify-end gap-3">
+              <Button variant="ghost" size="sm" className="text-xs h-8" onClick={() => setResult(null)}>
+                <RefreshCcw className="w-3 h-3 mr-1" /> Reset
+              </Button>
+              <Button variant="outline" size="sm" className="text-xs h-8" onClick={() => window.print()}>
+                <Download className="w-3 h-3 mr-1" /> Export PDF
+              </Button>
+            </div>
+          </div>
         </div>
       )}
     </div>
   );
-};
+}
 
+// Kept your custom section logic, just tweaked the styling slightly to match the premium feel
 const RecommendationSection = ({
   icon,
   title,
@@ -284,11 +278,11 @@ const RecommendationSection = ({
   content: string;
   color: string;
 }) => (
-  <div className={`p-2.5 rounded-lg border ${color} bg-card/50 space-y-1`}>
-    <h4 className="text-[10px] font-display font-semibold uppercase tracking-wider text-foreground flex items-center gap-1.5">
-      <span>{icon}</span> {title}
+  <div className={`p-3 rounded-lg border shadow-sm ${color} bg-background space-y-2 hover:shadow-md transition-shadow`}>
+    <h4 className="text-[11px] font-display font-bold uppercase tracking-wider text-foreground flex items-center gap-2">
+      <span className="text-base">{icon}</span> {title}
     </h4>
-    <div className="text-[11px] text-foreground/80 font-body leading-relaxed prose prose-xs max-w-none">
+    <div className="text-[11px] text-foreground/80 font-body leading-relaxed prose prose-xs dark:prose-invert max-w-none prose-p:my-1 prose-ul:my-1 prose-li:my-0.5">
       <ReactMarkdown>{content}</ReactMarkdown>
     </div>
   </div>
