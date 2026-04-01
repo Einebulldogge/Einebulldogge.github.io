@@ -1,11 +1,11 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import { Upload, RotateCcw, Download, ChevronLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import avatarPlaceholder from "@/assets/avatar-placeholder.png";
 import ZoomView from "@/components/studio/ZoomView";
-import RecommendationPanel from "@/components/ui/RecommendationPanel";
+import { RecommendationPanel, HealthPlanDisplay, DEMO_RESULT } from "@/components/ui/RecommendationPanel"; // Note the 3 imports
 
 interface BodySliders {
   height: number;
@@ -52,6 +52,38 @@ const StudioPage = () => {
   const [zoomOpen, setZoomOpen] = useState(false);
   const [detailSliders, setDetailSliders] = useState<Record<string, number>>({});
   const [activeZone, setActiveZone] = useState<string | null>(null);
+  // --- NEW AI PLAN STATE START ---
+  const [isGeneratingPlan, setIsGeneratingPlan] = useState(false);
+  const [healthPlan, setHealthPlan] = useState<any>(null);
+  const [loadingPhase, setLoadingPhase] = useState(0);
+
+  const loadingMessages = [
+    "Analyzing biometrics...",
+    "Cross-referencing longevity markers...",
+    "Optimizing macros & workout split...",
+    "Finalizing personalized protocol...",
+  ];
+
+  useEffect(() => {
+    if (!isGeneratingPlan) return;
+    const interval = setInterval(() => {
+      setLoadingPhase((prev) => (prev < loadingMessages.length - 1 ? prev + 1 : prev));
+    }, 600);
+    return () => clearInterval(interval);
+  }, [isGeneratingPlan]);
+
+  const handleGeneratePlan = () => {
+    setIsGeneratingPlan(true);
+    setLoadingPhase(0);
+    setHealthPlan(null);
+
+    // Simulated API Delay
+    setTimeout(() => {
+      setIsGeneratingPlan(false);
+      setHealthPlan(DEMO_RESULT);
+    }, 2500);
+  };
+  // --- NEW AI PLAN STATE END ---
 
   const handleSliderChange = useCallback((key: keyof BodySliders, value: number[]) => {
     setSliders((prev) => ({ ...prev, [key]: value[0] }));
@@ -196,12 +228,16 @@ const StudioPage = () => {
             <div className="h-px bg-border" />
 
             {/* AI Recommendation Panel */}
-            <RecommendationPanel bodyGoals={{ ...sliders, ...detailSliders }} />
+            <RecommendationPanel 
+              bodyGoals={{ ...sliders, ...detailSliders }} 
+              onGenerate={handleGeneratePlan} 
+              loading={isGeneratingPlan} 
+            />
           </div>
         </aside>
 
         {/* Canvas / Avatar Area */}
-        <main className="flex-1 flex items-center justify-center relative bg-background overflow-hidden">
+        <main className="flex-1 flex justify-center relative bg-background overflow-y-auto pt-12 pb-24">
           {/* Grid background */}
           <div
             className="absolute inset-0 opacity-[0.03]"
@@ -288,6 +324,15 @@ const StudioPage = () => {
               Adjust the sliders on the left to visualize your transformation goals.
               Your photo stays completely private — only you can see it.
             </p>
+            {/* --- AI HEALTH PLAN DISPLAY --- */}
+            <div className="w-full max-w-3xl mt-12 mb-12">
+              <HealthPlanDisplay 
+                result={healthPlan} 
+                loading={isGeneratingPlan} 
+                loadingPhaseText={loadingMessages[loadingPhase]}
+                onReset={() => setHealthPlan(null)}
+              />
+            </div>
           </div>
         </main>
       </div>
