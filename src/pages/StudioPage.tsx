@@ -280,7 +280,7 @@ const StudioPage = () => {
                     alt="Goal you"
                     className="w-full h-full object-contain p-2 transition-all duration-300"
                     style={{
-                      transform: `scaleX(${avatarTransforms.scaleX}) scaleY(${avatarTransforms.scaleY})`,
+                      transform: `scaleX(${goalTransformX.toFixed(3)}) scaleY(${goalTransformY.toFixed(3)})`,
                       filter: goalFilter,
                     }}
                   />
