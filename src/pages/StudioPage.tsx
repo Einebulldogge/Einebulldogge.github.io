@@ -56,7 +56,6 @@ const StudioPage = () => {
   const [detailSliders, setDetailSliders] = useState<Record<string, number>>({});
   const [activeZone, setActiveZone] = useState<string | null>(null);
 
-  // --- AI PLAN STATE ---
   const [isGeneratingPlan, setIsGeneratingPlan] = useState(false);
   const [healthPlan, setHealthPlan] = useState<any>(null);
   const [loadingPhase, setLoadingPhase] = useState(0);
@@ -101,33 +100,44 @@ const StudioPage = () => {
     }
   };
 
-  // --- REVISED MATH ENGINE ---
+  // --- ANATOMICAL SLICING MATH ENGINE ---
   const sv = (key: keyof BodySliders) => sliders[key] / 100; 
   const sd = (key: keyof BodySliders) => sv(key) - 0.5; 
 
-  // 1. DEFINITION TOOLS (Lighting & Texture Only - NO SCALING)
-  // Jawline: Deepens shadows and increases local contrast to carve the jaw.
-  const jawContrast = 1 + sd("jawline") * 0.8; // High contrast sharpens facial features
-  const jawBrightness = 1 - sd("jawline") * 0.15; // Slightly darkens to create hollows
+  // Physical Morphing Math (X-Axis only to prevent vertical gaps)
+  // These are much more aggressive now because they are isolated!
+  const jawScaleX = 1 - sd("jawline") * 0.25; // Physically shrinks jawline inwards up to 12.5%
+  const neckScaleX = 1 + sd("neckSize") * 0.3;
+  const shoulderScaleX = 1 + sd("shoulderWidth") * 0.35;
+  const chestScaleX = 1 + sd("chestSize") * 0.25;
+  const waistScaleX = 1 - sd("waistSize") * 0.4 + sd("bodyFat") * 0.15; // Waist shrinks drastically
+  const hipScaleX = 1 + sd("hipSize") * 0.3;
   
-  // Muscle & Fat: Manipulates skin texture
+  // Y-Axis Morphing (Only safe on the very top/bottom to prevent the body tearing apart)
+  const legScaleY = 1 + sd("legLength") * 0.25;
+  const overallHeight = 1 + sd("height") * 0.15;
+
+  // Texture Math (For muscle definition and fat blur)
   const muscleTone = sv("muscleTone");
-  const baseContrast = 1 + (muscleTone - 0.5) * 0.4 - sd("bodyFat") * 0.2;
-  const baseSaturate = 1 + (muscleTone - 0.5) * 0.3;
+  const baseContrast = 1 + (muscleTone - 0.5) * 0.5 - sd("bodyFat") * 0.2;
+  const baseSaturate = 1 + (muscleTone - 0.5) * 0.4;
   const baseBrightness = 1 - sd("bodyFat") * 0.1;
-  const blurAmount = Math.max(0, sd("bodyFat") * 2.5); // Softens features for high fat
+  const blurAmount = Math.max(0, sd("bodyFat") * 3); 
   
   const bodyFilter = `contrast(${baseContrast}) saturate(${baseSaturate}) brightness(${baseBrightness}) blur(${blurAmount}px)`;
-  const faceFilter = `contrast(${jawContrast}) brightness(${jawBrightness}) blur(${blurAmount * 0.2}px)`;
+  const jawFilter = `contrast(${baseContrast + sd("jawline") * 0.5}) brightness(${baseBrightness - sd("jawline") * 0.1})`; // Extra shadow for jaw
 
-  // 2. STRUCTURAL TOOLS (Highly Constrained Scaling)
-  // Max scale is limited to 4-10% to prevent the "Funhouse Mirror" distortion.
-  const shoulderScale = 1 + sd("shoulderWidth") * 0.12;
-  const chestScaleY = 1 + sd("chestSize") * 0.08;
-  const waistScale = 1 - sd("waistSize") * 0.15 + sd("bodyFat") * 0.08;
-  const hipScale = 1 + sd("hipSize") * 0.12;
-  const legScaleY = 1 + sd("legLength") * 0.08;
-  const overallHeight = 1 + sd("height") * 0.05;
+  // Define the anatomical slices based on standard human proportions
+  const bodySlices = [
+    { id: 'top-head', clip: 'polygon(0% 0%, 100% 0%, 100% 12%, 0% 12%)', scaleX: 1, filter: bodyFilter, origin: 'center' },
+    { id: 'jawline', clip: 'polygon(0% 12%, 100% 12%, 100% 18%, 0% 18%)', scaleX: jawScaleX, filter: jawFilter, origin: 'center' },
+    { id: 'neck', clip: 'polygon(0% 18%, 100% 18%, 100% 23%, 0% 23%)', scaleX: neckScaleX, filter: bodyFilter, origin: 'center' },
+    { id: 'shoulders', clip: 'polygon(0% 23%, 100% 23%, 100% 32%, 0% 32%)', scaleX: shoulderScaleX, filter: bodyFilter, origin: 'center' },
+    { id: 'chest-arms', clip: 'polygon(0% 32%, 100% 32%, 100% 45%, 0% 45%)', scaleX: chestScaleX, filter: bodyFilter, origin: 'center' },
+    { id: 'waist', clip: 'polygon(0% 45%, 100% 45%, 100% 55%, 0% 55%)', scaleX: waistScaleX, filter: bodyFilter, origin: 'center' },
+    { id: 'hips', clip: 'polygon(0% 55%, 100% 55%, 100% 65%, 0% 65%)', scaleX: hipScaleX, filter: bodyFilter, origin: 'center' },
+    { id: 'legs', clip: 'polygon(0% 65%, 100% 65%, 100% 100%, 0% 100%)', scaleX: 1, scaleY: legScaleY, filter: bodyFilter, origin: 'top center' },
+  ];
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -211,62 +221,34 @@ const StudioPage = () => {
                 <div className="w-8 h-px bg-gradient-to-r from-border via-primary to-border" />
               </div>
 
-              {/* --- REALISTIC LAYERED GOAL IMAGE --- */}
+              {/* --- REALISTIC ANATOMICAL SLICED IMAGE --- */}
               <div className="flex flex-col items-center gap-3">
                 <div
-                  className="relative w-40 h-72 md:w-56 md:h-96 rounded-2xl border border-primary/40 bg-card/50 overflow-hidden flex items-center justify-center shadow-[0_0_30px_rgba(255,215,0,0.1)] cursor-pointer group transition-transform hover:scale-[1.02]"
+                  className="relative w-40 h-72 md:w-56 md:h-96 rounded-2xl border border-primary/40 bg-card/50 overflow-hidden shadow-[0_0_30px_rgba(255,215,0,0.1)] cursor-pointer group transition-transform hover:scale-[1.02]"
                   onClick={() => setZoomOpen(true)}
-                  style={{ transform: `scaleY(${overallHeight})` }} 
                 >
-                  
-                  {/* BASE LAYER (Legs & Background) */}
-                  <img
-                    src={uploadedImage || avatarPlaceholder}
-                    className="absolute inset-0 w-full h-full object-contain p-2 origin-bottom transition-all duration-300"
-                    style={{
-                      transform: `scaleY(${legScaleY}) scaleX(${hipScale})`,
-                      filter: bodyFilter,
-                    }}
-                  />
+                  {/* Container scales for overall height */}
+                  <div className="relative w-full h-full" style={{ transform: `scaleY(${overallHeight})`, transformOrigin: 'bottom center', transition: 'transform 0.3s ease-out' }}>
+                    
+                    {/* Render each anatomical slice independently */}
+                    {bodySlices.map((slice) => (
+                      <img
+                        key={slice.id}
+                        src={uploadedImage || avatarPlaceholder}
+                        className="absolute inset-0 w-full h-full object-contain p-2 will-change-transform"
+                        style={{
+                          clipPath: slice.clip,
+                          transform: `scaleX(${slice.scaleX}) ${slice.scaleY ? `scaleY(${slice.scaleY})` : ''}`,
+                          transformOrigin: slice.origin,
+                          filter: slice.filter,
+                          transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), filter 0.3s ease-out'
+                        }}
+                      />
+                    ))}
 
-                  {/* WAIST LAYER */}
-                  <img
-                    src={uploadedImage || avatarPlaceholder}
-                    className="absolute inset-0 w-full h-full object-contain p-2 origin-center transition-all duration-300"
-                    style={{
-                      transform: `scaleX(${waistScale})`,
-                      filter: bodyFilter,
-                      WebkitMaskImage: "linear-gradient(to bottom, transparent 35%, black 45%, black 60%, transparent 70%)",
-                      maskImage: "linear-gradient(to bottom, transparent 35%, black 45%, black 60%, transparent 70%)",
-                    }}
-                  />
+                  </div>
 
-                  {/* CHEST & SHOULDER LAYER */}
-                  <img
-                    src={uploadedImage || avatarPlaceholder}
-                    className="absolute inset-0 w-full h-full object-contain p-2 origin-top transition-all duration-300"
-                    style={{
-                      transform: `scaleX(${shoulderScale}) scaleY(${chestScaleY})`,
-                      filter: bodyFilter,
-                      WebkitMaskImage: "linear-gradient(to bottom, transparent 15%, black 25%, black 40%, transparent 50%)",
-                      maskImage: "linear-gradient(to bottom, transparent 15%, black 25%, black 40%, transparent 50%)",
-                    }}
-                  />
-
-                  {/* HEAD & JAWLINE LAYER (Zero Scaling Applied) */}
-                  <img
-                    src={uploadedImage || avatarPlaceholder}
-                    className="absolute inset-0 w-full h-full object-contain p-2 origin-top transition-all duration-300"
-                    style={{
-                      // Notice: No transform scale applied here! Head stays exactly the same size.
-                      filter: faceFilter,
-                      WebkitMaskImage: "linear-gradient(to bottom, black 5%, black 20%, transparent 32%)",
-                      maskImage: "linear-gradient(to bottom, black 5%, black 20%, transparent 32%)",
-                    }}
-                  />
-
-                  {/* Hover Hint */}
-                  <div className="absolute inset-0 flex items-center justify-center bg-background/60 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                  <div className="absolute inset-0 flex items-center justify-center bg-background/60 opacity-0 group-hover:opacity-100 transition-opacity z-10 pointer-events-none">
                     <span className="text-xs text-primary font-body font-medium flex items-center gap-2">
                       <Search className="w-4 h-4" /> Click to zoom
                     </span>
