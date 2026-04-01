@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
-import { Upload, RotateCcw, Download, ChevronLeft } from "lucide-react";
+import { Upload, RotateCcw, Download, ChevronLeft, Search } from "lucide-react";
 import { Link } from "react-router-dom";
 import avatarPlaceholder from "@/assets/avatar-placeholder.png";
 import ZoomView from "@/components/studio/ZoomView";
@@ -18,7 +18,7 @@ interface BodySliders {
   muscleTone: number;
   bodyFat: number;
   neckSize: number;
-  jawline: number; // Added new Jawline Tool
+  jawline: number;
 }
 
 const defaultSliders: BodySliders = {
@@ -46,7 +46,7 @@ const sliderConfig: { key: keyof BodySliders; label: string; icon: string }[] = 
   { key: "muscleTone", label: "Muscle Tone", icon: "⚡" },
   { key: "bodyFat", label: "Body Fat %", icon: "📊" },
   { key: "neckSize", label: "Neck", icon: "○" },
-  { key: "jawline", label: "Jawline Definition", icon: "📐" }, // New Tool Added
+  { key: "jawline", label: "Jawline Definition", icon: "📐" },
 ];
 
 const StudioPage = () => {
@@ -101,44 +101,33 @@ const StudioPage = () => {
     }
   };
 
-  // --- REALISTIC LAYER CALCULATIONS ---
-  // Convert 0-100 to 0-1 range
+  // --- REVISED MATH ENGINE ---
   const sv = (key: keyof BodySliders) => sliders[key] / 100; 
-  // Deviation from center (-0.5 to 0.5)
   const sd = (key: keyof BodySliders) => sv(key) - 0.5; 
 
-  // 1. Head & Neck Adjustments
-  // Sharpening the jaw by slightly compressing the lower face and increasing contrast
-  const jawlinePinch = 1 - sd("jawline") * 0.15; 
-  const neckScale = 1 + sd("neckSize") * 0.2;
-
-  // 2. Chest & Shoulder Adjustments
-  const shoulderScale = 1 + sd("shoulderWidth") * 0.25;
-  const chestScaleY = 1 + sd("chestSize") * 0.15;
-
-  // 3. Waist & Hip Adjustments (Inverted: higher waist slider = thinner waist)
-  const waistScale = 1 - sd("waistSize") * 0.35 + sd("bodyFat") * 0.15;
-  const hipScale = 1 + sd("hipSize") * 0.25;
-
-  // 4. Legs & Height Adjustments
-  const legScaleY = 1 + sd("legLength") * 0.2;
-  const overallHeight = 1 + sd("height") * 0.15;
-
-  // 5. Global Texture (Muscle Tone & Fat)
+  // 1. DEFINITION TOOLS (Lighting & Texture Only - NO SCALING)
+  // Jawline: Deepens shadows and increases local contrast to carve the jaw.
+  const jawContrast = 1 + sd("jawline") * 0.8; // High contrast sharpens facial features
+  const jawBrightness = 1 - sd("jawline") * 0.15; // Slightly darkens to create hollows
+  
+  // Muscle & Fat: Manipulates skin texture
   const muscleTone = sv("muscleTone");
-  const bodyFat = sv("bodyFat");
+  const baseContrast = 1 + (muscleTone - 0.5) * 0.4 - sd("bodyFat") * 0.2;
+  const baseSaturate = 1 + (muscleTone - 0.5) * 0.3;
+  const baseBrightness = 1 - sd("bodyFat") * 0.1;
+  const blurAmount = Math.max(0, sd("bodyFat") * 2.5); // Softens features for high fat
   
-  // High muscle = high contrast, high definition, tanned
-  // High fat = blurred, lower contrast, brighter/softer
-  const contrast = 1 + (muscleTone - 0.5) * 0.4 - sd("bodyFat") * 0.2;
-  const saturate = 1 + (muscleTone - 0.5) * 0.5;
-  const brightness = 1 - sd("bodyFat") * 0.1;
-  const blurAmount = Math.max(0, sd("bodyFat") * 1.5); 
-  
-  const baseFilter = `contrast(${contrast}) saturate(${saturate}) brightness(${brightness}) blur(${blurAmount}px)`;
-  
-  // Extra shadow map for deep muscle cuts
-  const muscleShadow = muscleTone > 0.5 ? `drop-shadow(0px 4px 8px rgba(0,0,0,${(muscleTone - 0.5) * 0.5}))` : "";
+  const bodyFilter = `contrast(${baseContrast}) saturate(${baseSaturate}) brightness(${baseBrightness}) blur(${blurAmount}px)`;
+  const faceFilter = `contrast(${jawContrast}) brightness(${jawBrightness}) blur(${blurAmount * 0.2}px)`;
+
+  // 2. STRUCTURAL TOOLS (Highly Constrained Scaling)
+  // Max scale is limited to 4-10% to prevent the "Funhouse Mirror" distortion.
+  const shoulderScale = 1 + sd("shoulderWidth") * 0.12;
+  const chestScaleY = 1 + sd("chestSize") * 0.08;
+  const waistScale = 1 - sd("waistSize") * 0.15 + sd("bodyFat") * 0.08;
+  const hipScale = 1 + sd("hipSize") * 0.12;
+  const legScaleY = 1 + sd("legLength") * 0.08;
+  const overallHeight = 1 + sd("height") * 0.05;
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -193,7 +182,6 @@ const StudioPage = () => {
             </div>
 
             <div className="h-px bg-border" />
-
             <RecommendationPanel bodyGoals={{ ...sliders, ...detailSliders }} onGenerate={handleGeneratePlan} loading={isGeneratingPlan} />
           </div>
         </aside>
@@ -228,7 +216,7 @@ const StudioPage = () => {
                 <div
                   className="relative w-40 h-72 md:w-56 md:h-96 rounded-2xl border border-primary/40 bg-card/50 overflow-hidden flex items-center justify-center shadow-[0_0_30px_rgba(255,215,0,0.1)] cursor-pointer group transition-transform hover:scale-[1.02]"
                   onClick={() => setZoomOpen(true)}
-                  style={{ transform: `scaleY(${overallHeight})` }} // Height affects the whole container
+                  style={{ transform: `scaleY(${overallHeight})` }} 
                 >
                   
                   {/* BASE LAYER (Legs & Background) */}
@@ -237,7 +225,7 @@ const StudioPage = () => {
                     className="absolute inset-0 w-full h-full object-contain p-2 origin-bottom transition-all duration-300"
                     style={{
                       transform: `scaleY(${legScaleY}) scaleX(${hipScale})`,
-                      filter: `${baseFilter} ${muscleShadow}`,
+                      filter: bodyFilter,
                     }}
                   />
 
@@ -247,8 +235,7 @@ const StudioPage = () => {
                     className="absolute inset-0 w-full h-full object-contain p-2 origin-center transition-all duration-300"
                     style={{
                       transform: `scaleX(${waistScale})`,
-                      filter: `${baseFilter} ${muscleShadow}`,
-                      // Blends the waist cleanly into the chest and legs
+                      filter: bodyFilter,
                       WebkitMaskImage: "linear-gradient(to bottom, transparent 35%, black 45%, black 60%, transparent 70%)",
                       maskImage: "linear-gradient(to bottom, transparent 35%, black 45%, black 60%, transparent 70%)",
                     }}
@@ -260,21 +247,19 @@ const StudioPage = () => {
                     className="absolute inset-0 w-full h-full object-contain p-2 origin-top transition-all duration-300"
                     style={{
                       transform: `scaleX(${shoulderScale}) scaleY(${chestScaleY})`,
-                      filter: `${baseFilter} ${muscleShadow}`,
-                      // Blends shoulders cleanly into the neck and waist
+                      filter: bodyFilter,
                       WebkitMaskImage: "linear-gradient(to bottom, transparent 15%, black 25%, black 40%, transparent 50%)",
                       maskImage: "linear-gradient(to bottom, transparent 15%, black 25%, black 40%, transparent 50%)",
                     }}
                   />
 
-                  {/* HEAD, NECK & JAWLINE LAYER */}
+                  {/* HEAD & JAWLINE LAYER (Zero Scaling Applied) */}
                   <img
                     src={uploadedImage || avatarPlaceholder}
                     className="absolute inset-0 w-full h-full object-contain p-2 origin-top transition-all duration-300"
                     style={{
-                      transform: `scaleX(${jawlinePinch})`, // Sharpens face width based on Jawline
-                      filter: `contrast(${contrast + (1 - jawlinePinch)}) saturate(${saturate}) brightness(${brightness})`, // Extra contrast on face for definition
-                      // Isolates just the head
+                      // Notice: No transform scale applied here! Head stays exactly the same size.
+                      filter: faceFilter,
                       WebkitMaskImage: "linear-gradient(to bottom, black 5%, black 20%, transparent 32%)",
                       maskImage: "linear-gradient(to bottom, black 5%, black 20%, transparent 32%)",
                     }}
@@ -289,10 +274,6 @@ const StudioPage = () => {
                 </div>
               </div>
             </div>
-
-            <p className="text-xs text-muted-foreground font-body max-w-md text-center mt-4">
-              Adjust the sliders on the left to visualize anatomical changes. Layered masking simulates targeted musculoskeletal manipulation.
-            </p>
 
             {/* AI HEALTH PLAN DISPLAY */}
             <div className="w-full mt-12 mb-12">
@@ -309,8 +290,5 @@ const StudioPage = () => {
     </div>
   );
 };
-
-// Needed for the hover hint icon
-import { Search } from "lucide-react";
 
 export default StudioPage;
