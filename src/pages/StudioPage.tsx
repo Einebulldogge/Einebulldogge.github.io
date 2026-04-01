@@ -195,33 +195,8 @@ const StudioPage = () => {
             {/* Divider */}
             <div className="h-px bg-border" />
 
-            {/* Goal Breakdown */}
-            <div className="space-y-3">
-              <h3 className="font-display text-sm font-semibold text-foreground uppercase tracking-wider">
-                Path to Goal
-              </h3>
-              <div className="space-y-2">
-                {[
-                  { label: "Diet", pct: 40, color: "bg-green-500" },
-                  { label: "Exercise", pct: 35, color: "bg-blue-500" },
-                  { label: "Medical", pct: 15, color: "bg-amber-500" },
-                  { label: "Supplements", pct: 10, color: "bg-pink-500" },
-                ].map((item) => (
-                  <div key={item.label} className="space-y-1">
-                    <div className="flex justify-between text-xs font-body">
-                      <span className="text-foreground/80">{item.label}</span>
-                      <span className="text-muted-foreground">{item.pct}%</span>
-                    </div>
-                    <div className="h-1.5 rounded-full bg-muted overflow-hidden">
-                      <div
-                        className={`h-full rounded-full ${item.color} transition-all`}
-                        style={{ width: `${item.pct}%` }}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+            {/* AI Recommendation Panel */}
+            <RecommendationPanel bodyGoals={{ ...sliders, ...detailSliders }} />
           </div>
         </aside>
 
