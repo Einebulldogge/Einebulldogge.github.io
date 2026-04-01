@@ -67,28 +67,51 @@ const StudioPage = () => {
     }
   };
 
-  // Compute CSS transforms based on slider values
+  // Compute CSS transforms based on slider values — each slider drives a distinct visual effect
   const sv = (key: keyof BodySliders) => sliders[key] / 100; // 0-1
+  const sd = (key: keyof BodySliders) => sv(key) - 0.5; // -0.5 to 0.5 deviation
 
+  // Shape transforms — each body part contributes differently
   const avatarTransforms = {
-    scaleY: 0.85 + sv("height") * 0.3,
-    scaleX: 0.9 + sv("shoulderWidth") * 0.2,
+    scaleY: 1 + sd("height") * 0.2,         // height stretches vertically
+    scaleX: 1 + sd("shoulderWidth") * 0.12,  // shoulders widen frame
   };
 
-  // Body part transforms for the overlay visualization
+  // Body part overlay sizes driven by their specific sliders
   const chestScale = 0.85 + sv("chestSize") * 0.3;
-  const waistScale = 1.15 - sv("waistSize") * 0.3; // inverse: higher = slimmer waist
+  const waistScale = 1.15 - sv("waistSize") * 0.3; // inverse: higher = slimmer
   const hipScale = 0.85 + sv("hipSize") * 0.3;
 
-  // Muscle & skin effects on goal avatar
+  // Muscle tone: increases contrast & shadow depth for definition
   const muscleTone = sv("muscleTone");
-  const bodyFat = sv("bodyFat");
-  const goalContrast = 0.85 + muscleTone * 0.35;
-  const goalSaturate = 0.9 + muscleTone * 0.25;
-  const goalBrightness = 1.05 - bodyFat * 0.15; // leaner = slightly brighter/sharper
-  const goalBlur = (1 - muscleTone) * 0.3; // more toned = sharper
+  const goalContrast = 0.88 + muscleTone * 0.3;
+  const goalSaturate = 0.85 + muscleTone * 0.35;
+  // Drop shadow for muscle depth
+  const muscleShadow = Math.max(0, (muscleTone - 0.5) * 0.4);
+  const dropShadow = muscleShadow > 0 ? `drop-shadow(0 2px ${2 + muscleShadow * 6}px rgba(0,0,0,${muscleShadow}))` : "";
 
-  const goalFilter = `contrast(${goalContrast}) saturate(${goalSaturate}) brightness(${goalBrightness}) blur(${goalBlur}px)`;
+  // Body fat: higher = softer/smoother (blur + brightness reduction)
+  const bodyFat = sv("bodyFat");
+  const goalBrightness = 1.05 - bodyFat * 0.12;
+  const goalBlur = bodyFat * 0.5;  // more fat = softer/less defined
+  // Neck adds slight width
+  const neckEffect = sd("neckSize") * 0.03;
+
+  // Arm size subtly widens upper body
+  const armEffect = sd("armSize") * 0.04;
+  // Leg length stretches lower half
+  const legEffect = sd("legLength") * 0.06;
+
+  const goalFilter = [
+    `contrast(${goalContrast.toFixed(2)})`,
+    `saturate(${goalSaturate.toFixed(2)})`,
+    `brightness(${goalBrightness.toFixed(2)})`,
+    goalBlur > 0.05 ? `blur(${goalBlur.toFixed(2)}px)` : "",
+    dropShadow,
+  ].filter(Boolean).join(" ");
+
+  const goalTransformX = avatarTransforms.scaleX + neckEffect + armEffect;
+  const goalTransformY = avatarTransforms.scaleY + legEffect;
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
