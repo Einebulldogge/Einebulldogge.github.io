@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
-import { Sparkles, Loader2, Download, RefreshCcw } from "lucide-react";
+import { Sparkles, Loader2, Download, RefreshCcw, ShoppingCart } from "lucide-react";
 import ReactMarkdown from "react-markdown";
+import { Link } from "react-router-dom";
+
 
 export const DEMO_RESULT = {
   summary: "Protocol Alpha: Your plan focuses on optimizing biomarkers and achieving metabolic flexibility. Based on your inputs, we are prioritizing hyper-targeted hypertrophy paired with a strict 16:8 nutritional window to accelerate body recomposition.",
@@ -139,6 +141,15 @@ export function HealthPlanDisplay({ result, loading, loadingPhaseText, onReset }
             </div>
 
             <div className="mt-6 pt-4 border-t flex justify-end gap-3">
+
+              {/* NEW: The Shop Link */}
+              <Link to="/store">
+                <Button className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_0_15px_rgba(255,215,0,0.2)] text-xs font-bold uppercase tracking-wider">
+                  <ShoppingCart className="w-4 h-4 mr-2" />
+                  Shop Protocol
+                </Button>
+              </Link>
+              
               <Button variant="ghost" size="sm" onClick={onReset}><RefreshCcw className="w-4 h-4 mr-2" /> Reset</Button>
               <Button variant="outline" size="sm" onClick={() => window.print()}><Download className="w-4 h-4 mr-2" /> Export PDF</Button>
             </div>
