@@ -125,62 +125,102 @@ const ZoomView = ({ imageSrc, detailSliders, onSliderChange, onClose, activeZone
     : {};
 
   const v = (key: string) => (detailSliders[key] ?? 50) / 100; // 0-1 normalized
+  // Deviation from center: negative = reduced, positive = increased
+  const d = (key: string) => v(key) - 0.5; // -0.5 to 0.5
 
-  // Compute visual effects from all sliders
+  // Build per-zone image style with differentiated, realistic effects
   const getImageStyle = (): React.CSSProperties => {
-    // --- Shape transforms ---
-    const shoulderW = 0.9 + v("shoulderWidth") * 0.2;
-    const chestW = 0.9 + v("chestSize") * 0.2;
-    const waistW = 1.1 - v("waistSize") * 0.2; // inverse: higher = slimmer
-    const hipW = 0.9 + v("hipSize") * 0.2;
-    const jawDef = 0.95 + v("jawline") * 0.1;
-    const faceW = 0.9 + v("faceWidth") * 0.2;
-    const gluteS = 0.95 + v("gluteSize") * 0.1;
-    const thighS = 0.95 + v("thighSize") * 0.1;
-    const neckW = 0.95 + v("neckSize") * 0.1;
-    const vTaper = v("vTaper");
-    const loveHandles = 1.05 - v("loveHandles") * 0.1; // higher = less love handles
+    const baseZoom = activeConfig
+      ? { transformOrigin: activeConfig.objectPosition }
+      : { transformOrigin: "50% 50%" };
 
-    // Composite shape: average relevant shape sliders for current zone
+    const scale = activeConfig?.imageScale ?? 1;
+
+    // --- SHAPE: selective, zone-specific geometric transforms ---
     let scaleX = 1;
     let scaleY = 1;
+    let skewX = 0;
+    let perspective = "";
+
     if (activeZone === "head") {
-      scaleX = (jawDef + faceW + neckW) / 3;
-      scaleY = 0.95 + v("chinDefinition") * 0.1;
+      // Jawline: narrows lower face (slight perspective taper)
+      scaleX += d("faceWidth") * 0.12;
+      scaleY += d("chinDefinition") * 0.06;
+      // Jawline definition uses slight perspective to taper
+      const jawVal = d("jawline");
+      if (jawVal > 0) {
+        perspective = `perspective(600px) rotateX(${jawVal * 4}deg)`;
+      }
+      // Neck width is subtle horizontal change
+      scaleX += d("neckSize") * 0.04;
     } else if (activeZone === "upper") {
-      scaleX = (shoulderW + chestW) / 2;
-      scaleY = 0.95 + v("upperBack") * 0.1;
+      // Shoulders widen, chest deepens
+      scaleX += d("shoulderWidth") * 0.15;
+      scaleY += d("chestSize") * 0.08;
+      // Arms add slight width
+      scaleX += d("armSize") * 0.06;
+      // Upper back adds depth (subtle Y scale)
+      scaleY += d("upperBack") * 0.05;
     } else if (activeZone === "core") {
-      scaleX = (waistW + loveHandles) / 2;
-      scaleY = 0.95 + vTaper * 0.1;
+      // Waist: higher value = slimmer (inverted)
+      scaleX -= d("waistSize") * 0.15;
+      // Love handles reduction narrows sides
+      scaleX -= d("loveHandles") * 0.08;
+      // V-taper: shoulders wider relative to waist (slight trapezoid via skew)
+      skewX = d("vTaper") * 1.5;
     } else if (activeZone === "lower") {
-      scaleX = (hipW + gluteS + thighS) / 3;
-      scaleY = 0.95 + v("calfSize") * 0.1;
+      // Hips and glutes add width/volume
+      scaleX += d("hipSize") * 0.12;
+      scaleX += d("gluteSize") * 0.06;
+      // Thigh size
+      scaleX += d("thighSize") * 0.08;
+      // Calf size adds slight height perception
+      scaleY += d("calfSize") * 0.05;
     }
 
-    // --- Muscle effects (contrast & sharpness) ---
-    const muscleToneKeys = activeConfig?.sliders.filter(s => s.category === "muscle").map(s => s.key) || [];
-    const avgMuscleTone = muscleToneKeys.length > 0
-      ? muscleToneKeys.reduce((sum, k) => sum + v(k), 0) / muscleToneKeys.length
+    // --- MUSCLE TONING: contrast + saturate + shadow for definition ---
+    const muscleKeys = activeConfig?.sliders.filter(s => s.category === "muscle").map(s => s.key) || [];
+    const avgMuscle = muscleKeys.length > 0
+      ? muscleKeys.reduce((sum, k) => sum + v(k), 0) / muscleKeys.length
       : 0.5;
-    const contrast = 0.85 + avgMuscleTone * 0.35; // 0.85 to 1.2
-    const saturate = 0.9 + avgMuscleTone * 0.3; // 0.9 to 1.2
+    // Higher toning = sharper contrast + deeper shadows + more color pop
+    const contrast = 0.9 + avgMuscle * 0.3;       // 0.9 → 1.2
+    const saturate = 0.85 + avgMuscle * 0.35;      // 0.85 → 1.2
+    // Drop shadow to simulate muscle shadow/depth
+    const shadowIntensity = Math.max(0, (avgMuscle - 0.5) * 0.4);
+    const dropShadow = shadowIntensity > 0 ? `drop-shadow(0 2px ${2 + shadowIntensity * 6}px rgba(0,0,0,${shadowIntensity}))` : "";
 
-    // --- Skin effects (smoothing & brightness) ---
+    // --- SKIN: blur for smoothing, brightness for glow, sepia for warmth ---
     const skinKeys = activeConfig?.sliders.filter(s => s.category === "skin").map(s => s.key) || [];
-    const avgSkinSmooth = skinKeys.length > 0
+    const avgSkin = skinKeys.length > 0
       ? skinKeys.reduce((sum, k) => sum + v(k), 0) / skinKeys.length
       : 0.5;
-    const blur = avgSkinSmooth * 0.8; // 0 to 0.8px blur for smoothing
-    const brightness = 0.95 + avgSkinSmooth * 0.12; // subtle glow
+    // Wrinkle/texture reduction = soft blur + warm glow
+    const blur = Math.max(0, (avgSkin - 0.4) * 1.2);  // 0 → ~0.7px
+    const brightness = 0.97 + avgSkin * 0.08;           // subtle warmth
+    const sepia = Math.max(0, (avgSkin - 0.5) * 0.12);  // warm skin tone
 
-    const baseZoom = activeConfig
-      ? { transform: `scale(${activeConfig.imageScale}) scaleX(${scaleX}) scaleY(${scaleY})`, transformOrigin: activeConfig.objectPosition }
-      : { transform: "scale(1) scaleX(1) scaleY(1)", transformOrigin: "50% 50%" };
+    const transformStr = [
+      `scale(${scale})`,
+      perspective,
+      `scaleX(${scaleX.toFixed(3)})`,
+      `scaleY(${scaleY.toFixed(3)})`,
+      skewX !== 0 ? `skewX(${skewX.toFixed(1)}deg)` : "",
+    ].filter(Boolean).join(" ");
+
+    const filterStr = [
+      `contrast(${contrast.toFixed(2)})`,
+      `saturate(${saturate.toFixed(2)})`,
+      `brightness(${brightness.toFixed(2)})`,
+      blur > 0.05 ? `blur(${blur.toFixed(2)}px)` : "",
+      sepia > 0.005 ? `sepia(${sepia.toFixed(3)})` : "",
+      dropShadow,
+    ].filter(Boolean).join(" ");
 
     return {
       ...baseZoom,
-      filter: `contrast(${contrast}) saturate(${saturate}) brightness(${brightness}) blur(${blur}px)`,
+      transform: transformStr,
+      filter: filterStr,
       transition: "all 0.5s ease-out",
     };
   };
