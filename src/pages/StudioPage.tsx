@@ -5,7 +5,7 @@ import { Upload, RotateCcw, Download, ChevronLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import avatarPlaceholder from "@/assets/avatar-placeholder.png";
 import ZoomView from "@/components/studio/ZoomView";
-import RecommendationPanel from "@/components/studio/RecommendationPanel";
+import RecommendationPanel from "@/components/ui/RecommendationPanel";
 
 interface BodySliders {
   height: number;
