@@ -10,7 +10,6 @@ const BIOMETRIC_DATA = [
   { label: "Bicep Definition", value: "+45%", x: "75%", y: "80%", delay: 2.4 },
   { label: "V-Taper Enhancement", value: "+30%", x: "10%", y: "35%", delay: 2.8 },
 ];
-];
 
 function AnimatedValue({ target }: { target: string }) {
   const [display, setDisplay] = useState(target);
