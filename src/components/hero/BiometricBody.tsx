@@ -188,6 +188,7 @@ function ScanRing() {
 function Particles() {
   const count = 80;
   const ref = useRef<THREE.Points>(null);
+  const geoRef = useRef<THREE.BufferGeometry>(null);
 
   const positions = useMemo(() => {
     const arr = new Float32Array(count * 3);
@@ -202,6 +203,12 @@ function Particles() {
     return arr;
   }, []);
 
+  useMemo(() => {
+    if (geoRef.current) {
+      geoRef.current.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+    }
+  }, [positions]);
+
   useFrame((_, delta) => {
     if (ref.current) {
       ref.current.rotation.y += delta * 0.1;
@@ -210,14 +217,14 @@ function Particles() {
 
   return (
     <points ref={ref}>
-      <bufferGeometry>
-        <bufferAttribute
-          attach="attributes-position"
-          count={count}
-          array={positions}
-          itemSize={3}
-        />
-      </bufferGeometry>
+      <bufferGeometry
+        ref={(geo) => {
+          if (geo && !geo.getAttribute("position")) {
+            geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+          }
+          (geoRef as any).current = geo;
+        }}
+      />
       <pointsMaterial
         color="hsl(40, 65%, 55%)"
         size={0.03}
