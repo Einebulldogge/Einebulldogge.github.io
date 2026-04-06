@@ -1,8 +1,6 @@
-import { Suspense, lazy } from "react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-
-const BiometricBody = lazy(() => import("@/components/hero/BiometricBody"));
+import BiometricBody from "@/components/hero/BiometricBody";
 
 export default function HeroSection() {
   return (
@@ -20,12 +18,10 @@ export default function HeroSection() {
         />
       </div>
 
-      {/* 3D biometric body — right side */}
+      {/* Biometric body — right side */}
       <div className="absolute inset-0 z-10 pointer-events-none">
         <div className="absolute right-0 top-0 w-full md:w-[55%] h-full">
-          <Suspense fallback={null}>
-            <BiometricBody />
-          </Suspense>
+          <BiometricBody />
         </div>
       </div>
 
