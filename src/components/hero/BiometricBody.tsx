@@ -1,14 +1,15 @@
 import { useEffect, useState } from "react";
 
 const BIOMETRIC_DATA = [
-  { label: "Heart Rate", value: "72 bpm", x: "15%", y: "18%", delay: 0 },
-  { label: "Body Fat", value: "18.4%", x: "78%", y: "12%", delay: 0.4 },
-  { label: "VO₂ Max", value: "42 ml/kg", x: "82%", y: "35%", delay: 0.8 },
-  { label: "BMI", value: "23.1", x: "10%", y: "55%", delay: 1.2 },
-  { label: "Muscle Mass", value: "68 kg", x: "80%", y: "58%", delay: 1.6 },
-  { label: "Hydration", value: "64%", x: "18%", y: "82%", delay: 2.0 },
-  { label: "Metabolic Rate", value: "1,840 cal", x: "75%", y: "80%", delay: 2.4 },
-  { label: "HRV", value: "58 ms", x: "12%", y: "38%", delay: 2.8 },
+  { label: "Jawline Definition", value: "+40%", x: "15%", y: "15%", delay: 0 },
+  { label: "Skin Tightening", value: "Firmer", x: "78%", y: "12%", delay: 0.4 },
+  { label: "Waist Reduction", value: "−2 in", x: "82%", y: "35%", delay: 0.8 },
+  { label: "Ab Definition", value: "+60%", x: "8%", y: "50%", delay: 1.2 },
+  { label: "Glute Toning", value: "+35%", x: "80%", y: "58%", delay: 1.6 },
+  { label: "Cellulite Reduction", value: "−70%", x: "16%", y: "80%", delay: 2.0 },
+  { label: "Bicep Definition", value: "+45%", x: "75%", y: "80%", delay: 2.4 },
+  { label: "V-Taper Enhancement", value: "+30%", x: "10%", y: "35%", delay: 2.8 },
+];
 ];
 
 function AnimatedValue({ target }: { target: string }) {
