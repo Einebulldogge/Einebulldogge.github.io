@@ -1,7 +1,11 @@
 import { useRef, useMemo } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { Float, Text } from "@react-three/drei";
+import { Text } from "@react-three/drei";
 import * as THREE from "three";
+
+// Fix for R3F v8 bufferAttribute
+import { extend } from "@react-three/fiber";
+extend({ BufferAttribute: THREE.BufferAttribute });
 
 // Human silhouette built from capsules/spheres
 function HumanFigure() {
@@ -227,7 +231,7 @@ function Particles() {
 
 export default function BiometricBody() {
   return (
-    <div className="w-full h-full">
+    <div style={{ width: "100%", height: "100vh" }}>
       <Canvas
         camera={{ position: [0, 0.5, 5.5], fov: 45 }}
         gl={{ antialias: true, alpha: true }}
