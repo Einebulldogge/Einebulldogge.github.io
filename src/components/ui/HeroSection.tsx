@@ -1,8 +1,6 @@
-import { Suspense, lazy } from "react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-
-const BiometricBody = lazy(() => import("@/components/hero/BiometricBody"));
+import BiometricBody from "@/components/hero/BiometricBody";
 
 export default function HeroSection() {
   return (
