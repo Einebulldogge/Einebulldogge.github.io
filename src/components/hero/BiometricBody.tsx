@@ -67,8 +67,8 @@ export default function BiometricBody() {
           src={wireframeBody}
           alt="Biometric wireframe body"
           className="w-full h-full object-contain"
-          width={512}
-          height={1024}
+          width={812}
+          height={1524}
         />
         {/* Scan line overlay */}
         <div
