@@ -46,9 +46,8 @@ function HumanSilhouette() {
       className="w-full h-full"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      style={{ filter: "drop-shadow(0 0 30px hsl(40 65% 55% / 0.15))" }}
+      style={{ filter: "drop-shadow(0 0 40px hsl(40 65% 55% / 0.25))" }}
     >
-      {/* Scan line animation */}
       <defs>
         <linearGradient id="scanGrad" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="hsl(40, 65%, 55%)" stopOpacity="0" />
@@ -56,101 +55,117 @@ function HumanSilhouette() {
           <stop offset="55%" stopColor="hsl(40, 65%, 55%)" stopOpacity="0.3" />
           <stop offset="100%" stopColor="hsl(40, 65%, 55%)" stopOpacity="0" />
         </linearGradient>
-        <linearGradient id="bodyGrad" x1="0.3" y1="0" x2="0.7" y2="1">
-          <stop offset="0%" stopColor="hsl(40, 65%, 55%)" stopOpacity="0.9" />
-          <stop offset="50%" stopColor="hsl(40, 55%, 45%)" stopOpacity="0.7" />
-          <stop offset="100%" stopColor="hsl(40, 45%, 35%)" stopOpacity="0.6" />
-        </linearGradient>
-        <linearGradient id="bodyEdge" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stopColor="hsl(40, 65%, 55%)" stopOpacity="0.4" />
-          <stop offset="100%" stopColor="hsl(40, 65%, 55%)" stopOpacity="0.1" />
-        </linearGradient>
+        <radialGradient id="glowGrad" cx="50%" cy="40%" r="50%">
+          <stop offset="0%" stopColor="hsl(40, 65%, 55%)" stopOpacity="0.15" />
+          <stop offset="100%" stopColor="hsl(40, 65%, 55%)" stopOpacity="0" />
+        </radialGradient>
       </defs>
 
-      {/* Slight rotation transform for 3/4 angle effect */}
+      {/* Background glow */}
+      <ellipse cx="150" cy="280" rx="120" ry="250" fill="url(#glowGrad)" />
+
       <g transform="translate(150, 300) scale(0.92) skewY(-2) translate(-150, -300)">
+        {/* Wireframe polygon mesh body */}
         {/* Head */}
-        <ellipse cx="153" cy="58" rx="32" ry="38" fill="url(#bodyGrad)" />
+        <polygon points="153,20 170,30 178,50 175,70 165,85 141,85 131,70 128,50 136,30" stroke="hsl(40, 65%, 55%)" strokeWidth="0.8" fill="hsl(40, 65%, 55%)" fillOpacity="0.05" />
+        <line x1="153" y1="20" x2="175" y2="70" stroke="hsl(40, 65%, 55%)" strokeWidth="0.4" opacity="0.3" />
+        <line x1="153" y1="20" x2="131" y2="70" stroke="hsl(40, 65%, 55%)" strokeWidth="0.4" opacity="0.3" />
+        <line x1="170" y1="30" x2="141" y2="85" stroke="hsl(40, 65%, 55%)" strokeWidth="0.4" opacity="0.3" />
+        <line x1="136" y1="30" x2="165" y2="85" stroke="hsl(40, 65%, 55%)" strokeWidth="0.4" opacity="0.3" />
+        <line x1="178" y1="50" x2="128" y2="50" stroke="hsl(40, 65%, 55%)" strokeWidth="0.4" opacity="0.3" />
 
         {/* Neck */}
-        <rect x="141" y="92" width="24" height="24" rx="8" fill="url(#bodyGrad)" />
+        <polygon points="141,85 165,85 162,108 144,108" stroke="hsl(40, 65%, 55%)" strokeWidth="0.8" fill="hsl(40, 65%, 55%)" fillOpacity="0.04" />
+        <line x1="153" y1="85" x2="153" y2="108" stroke="hsl(40, 65%, 55%)" strokeWidth="0.4" opacity="0.3" />
 
-        {/* Shoulders and torso */}
-        <path
-          d="M 90 116 Q 100 108 141 110 L 165 110 Q 206 108 216 116 L 220 140 Q 222 180 218 220 L 210 280 Q 200 290 153 292 Q 106 290 96 280 L 88 220 Q 84 180 86 140 Z"
-          fill="url(#bodyGrad)"
-        />
+        {/* Shoulders */}
+        <polygon points="144,108 162,108 216,120 220,135 86,135 90,120" stroke="hsl(40, 65%, 55%)" strokeWidth="0.8" fill="hsl(40, 65%, 55%)" fillOpacity="0.05" />
+        <line x1="153" y1="108" x2="153" y2="135" stroke="hsl(40, 65%, 55%)" strokeWidth="0.4" opacity="0.2" />
+        <line x1="144" y1="108" x2="86" y2="135" stroke="hsl(40, 65%, 55%)" strokeWidth="0.4" opacity="0.2" />
+        <line x1="162" y1="108" x2="220" y2="135" stroke="hsl(40, 65%, 55%)" strokeWidth="0.4" opacity="0.2" />
+
+        {/* Upper torso */}
+        <polygon points="86,135 220,135 218,190 88,190" stroke="hsl(40, 65%, 55%)" strokeWidth="0.8" fill="hsl(40, 65%, 55%)" fillOpacity="0.04" />
+        <line x1="153" y1="135" x2="153" y2="190" stroke="hsl(40, 65%, 55%)" strokeWidth="0.4" opacity="0.2" />
+        <line x1="120" y1="135" x2="118" y2="190" stroke="hsl(40, 65%, 55%)" strokeWidth="0.3" opacity="0.15" />
+        <line x1="186" y1="135" x2="188" y2="190" stroke="hsl(40, 65%, 55%)" strokeWidth="0.3" opacity="0.15" />
+        <line x1="86" y1="160" x2="220" y2="160" stroke="hsl(40, 65%, 55%)" strokeWidth="0.3" opacity="0.15" />
+
+        {/* Mid torso */}
+        <polygon points="88,190 218,190 212,250 94,250" stroke="hsl(40, 65%, 55%)" strokeWidth="0.8" fill="hsl(40, 65%, 55%)" fillOpacity="0.04" />
+        <line x1="153" y1="190" x2="153" y2="250" stroke="hsl(40, 65%, 55%)" strokeWidth="0.4" opacity="0.2" />
+        <line x1="88" y1="220" x2="218" y2="220" stroke="hsl(40, 65%, 55%)" strokeWidth="0.3" opacity="0.15" />
+
+        {/* Lower torso / hips */}
+        <polygon points="94,250 212,250 205,290 195,320 153,330 111,320 101,290" stroke="hsl(40, 65%, 55%)" strokeWidth="0.8" fill="hsl(40, 65%, 55%)" fillOpacity="0.05" />
+        <line x1="153" y1="250" x2="153" y2="330" stroke="hsl(40, 65%, 55%)" strokeWidth="0.4" opacity="0.2" />
+        <line x1="94" y1="250" x2="195" y2="320" stroke="hsl(40, 65%, 55%)" strokeWidth="0.3" opacity="0.12" />
+        <line x1="212" y1="250" x2="111" y2="320" stroke="hsl(40, 65%, 55%)" strokeWidth="0.3" opacity="0.12" />
 
         {/* Left arm */}
-        <path
-          d="M 86 120 Q 68 124 58 150 L 48 200 Q 42 230 44 260 Q 44 275 50 280 Q 56 282 60 275 L 66 240 Q 70 220 72 200 L 78 170"
-          stroke="url(#bodyGrad)"
-          strokeWidth="22"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          fill="none"
-        />
+        <polygon points="86,135 90,120 72,135 60,165 50,200 44,240 48,270 56,278 62,265 66,240 72,200 78,170 86,150" stroke="hsl(40, 65%, 55%)" strokeWidth="0.8" fill="hsl(40, 65%, 55%)" fillOpacity="0.03" />
+        <line x1="86" y1="135" x2="50" y2="200" stroke="hsl(40, 65%, 55%)" strokeWidth="0.3" opacity="0.2" />
+        <line x1="72" y1="135" x2="62" y2="265" stroke="hsl(40, 65%, 55%)" strokeWidth="0.3" opacity="0.15" />
+        <line x1="60" y1="165" x2="78" y2="170" stroke="hsl(40, 65%, 55%)" strokeWidth="0.3" opacity="0.15" />
+        {/* Left hand */}
+        <polygon points="48,270 56,278 52,288 44,292 40,285 42,275" stroke="hsl(40, 65%, 55%)" strokeWidth="0.6" fill="hsl(40, 65%, 55%)" fillOpacity="0.04" />
 
         {/* Right arm */}
-        <path
-          d="M 220 120 Q 238 124 248 150 L 258 200 Q 264 230 262 260 Q 262 275 256 280 Q 250 282 246 275 L 240 240 Q 236 220 234 200 L 228 170"
-          stroke="url(#bodyGrad)"
-          strokeWidth="22"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          fill="none"
-        />
-
-        {/* Hips/waist */}
-        <path
-          d="M 96 280 Q 100 310 110 330 L 114 340 Q 130 345 153 346 Q 176 345 192 340 L 196 330 Q 206 310 210 280"
-          fill="url(#bodyGrad)"
-        />
+        <polygon points="220,135 216,120 234,135 246,165 256,200 262,240 258,270 250,278 244,265 240,240 234,200 228,170 220,150" stroke="hsl(40, 65%, 55%)" strokeWidth="0.8" fill="hsl(40, 65%, 55%)" fillOpacity="0.03" />
+        <line x1="220" y1="135" x2="256" y2="200" stroke="hsl(40, 65%, 55%)" strokeWidth="0.3" opacity="0.2" />
+        <line x1="234" y1="135" x2="244" y2="265" stroke="hsl(40, 65%, 55%)" strokeWidth="0.3" opacity="0.15" />
+        <line x1="246" y1="165" x2="228" y2="170" stroke="hsl(40, 65%, 55%)" strokeWidth="0.3" opacity="0.15" />
+        {/* Right hand */}
+        <polygon points="258,270 250,278 254,288 262,292 266,285 264,275" stroke="hsl(40, 65%, 55%)" strokeWidth="0.6" fill="hsl(40, 65%, 55%)" fillOpacity="0.04" />
 
         {/* Left leg */}
-        <path
-          d="M 114 340 Q 110 380 108 420 L 104 480 Q 102 510 100 540 Q 99 555 102 565 Q 108 572 90 575 Q 85 575 86 568 L 96 545 Q 98 520 100 500"
-          stroke="url(#bodyGrad)"
-          strokeWidth="26"
-          strokeLinecap="round"
-          fill="none"
-        />
+        <polygon points="111,320 153,330 140,380 130,430 124,480 118,530 112,555 104,565 92,570 88,562 98,545 106,510 110,460 116,400 118,360" stroke="hsl(40, 65%, 55%)" strokeWidth="0.8" fill="hsl(40, 65%, 55%)" fillOpacity="0.04" />
+        <line x1="111" y1="320" x2="106" y2="510" stroke="hsl(40, 65%, 55%)" strokeWidth="0.3" opacity="0.15" />
+        <line x1="140" y1="380" x2="98" y2="545" stroke="hsl(40, 65%, 55%)" strokeWidth="0.3" opacity="0.12" />
+        <line x1="130" y1="430" x2="110" y2="460" stroke="hsl(40, 65%, 55%)" strokeWidth="0.3" opacity="0.15" />
+        {/* Left foot */}
+        <polygon points="92,570 88,562 82,572 78,578 84,582 96,578" stroke="hsl(40, 65%, 55%)" strokeWidth="0.6" fill="hsl(40, 65%, 55%)" fillOpacity="0.04" />
 
         {/* Right leg */}
-        <path
-          d="M 192 340 Q 196 380 198 420 L 202 480 Q 204 510 206 540 Q 207 555 204 565 Q 198 572 216 575 Q 221 575 220 568 L 210 545 Q 208 520 206 500"
-          stroke="url(#bodyGrad)"
-          strokeWidth="26"
-          strokeLinecap="round"
-          fill="none"
-        />
+        <polygon points="195,320 153,330 166,380 176,430 182,480 188,530 194,555 202,565 214,570 218,562 208,545 200,510 196,460 190,400 188,360" stroke="hsl(40, 65%, 55%)" strokeWidth="0.8" fill="hsl(40, 65%, 55%)" fillOpacity="0.04" />
+        <line x1="195" y1="320" x2="200" y2="510" stroke="hsl(40, 65%, 55%)" strokeWidth="0.3" opacity="0.15" />
+        <line x1="166" y1="380" x2="208" y2="545" stroke="hsl(40, 65%, 55%)" strokeWidth="0.3" opacity="0.12" />
+        <line x1="176" y1="430" x2="196" y2="460" stroke="hsl(40, 65%, 55%)" strokeWidth="0.3" opacity="0.15" />
+        {/* Right foot */}
+        <polygon points="214,570 218,562 224,572 228,578 222,582 210,578" stroke="hsl(40, 65%, 55%)" strokeWidth="0.6" fill="hsl(40, 65%, 55%)" fillOpacity="0.04" />
+
+        {/* Joint dots */}
+        {[
+          [153,20],[170,30],[136,30],[178,50],[128,50],[153,85],
+          [90,120],[216,120],[86,135],[220,135],[153,135],
+          [88,190],[218,190],[153,190],[94,250],[212,250],[153,250],
+          [111,320],[195,320],[153,330],
+          [60,165],[246,165],[50,200],[256,200],
+          [48,270],[258,270],
+          [130,430],[176,430],[118,530],[188,530],
+          [92,570],[214,570],
+        ].map(([cx, cy], i) => (
+          <circle key={i} cx={cx} cy={cy} r="1.5" fill="hsl(40, 65%, 55%)" opacity="0.5">
+            <animate attributeName="opacity" values="0.3;0.7;0.3" dur={`${2 + (i % 3)}s`} repeatCount="indefinite" />
+          </circle>
+        ))}
       </g>
 
-      {/* Scanning line that sweeps up and down */}
-      <rect x="30" y="0" width="246" height="40" fill="url(#scanGrad)" opacity="0.5">
+      {/* Scanning line */}
+      <rect x="30" y="0" width="246" height="30" fill="url(#scanGrad)" opacity="0.5">
         <animateTransform
           attributeName="transform"
           type="translate"
-          values="0 0; 0 560; 0 0"
+          values="0 0; 0 570; 0 0"
           dur="4s"
           repeatCount="indefinite"
         />
       </rect>
 
-      {/* Grid/wireframe overlay lines */}
-      {[120, 200, 280, 360, 440].map((y) => (
-        <line
-          key={y}
-          x1="60"
-          y1={y}
-          x2="246"
-          y2={y}
-          stroke="hsl(40, 65%, 55%)"
-          strokeOpacity="0.06"
-          strokeWidth="0.5"
-          strokeDasharray="4 8"
-        />
-      ))}
+      {/* "ANATOMY" label like reference */}
+      <text x="150" y="598" textAnchor="middle" fill="hsl(40, 65%, 55%)" fontSize="8" fontFamily="monospace" letterSpacing="4" opacity="0.4">
+        ANATOMY
+      </text>
     </svg>
   );
 }
