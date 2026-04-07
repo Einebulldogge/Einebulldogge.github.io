@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Sparkles, Key, X, Loader2, AlertTriangle } from "lucide-react";
+import { Sparkles, Key, X, Loader2, AlertTriangle, Settings2 } from "lucide-react";
 import {
   getGeminiKey,
   setGeminiKey,
@@ -72,11 +72,10 @@ const RecommendationPanel = ({ bodyGoals }: RecommendationPanelProps) => {
     const oldVal = paths[key];
     const diff = newVal - oldVal;
 
-    // Redistribute the difference among other paths proportionally
     const otherKeys = (Object.keys(paths) as (keyof PathPreferences)[]).filter((k) => k !== key);
     const otherTotal = otherKeys.reduce((sum, k) => sum + paths[k], 0);
 
-    if (otherTotal === 0 && diff > 0) return; // can't take from zero
+    if (otherTotal === 0 && diff > 0) return;
 
     const newPaths = { ...paths, [key]: newVal };
     otherKeys.forEach((k) => {
@@ -84,7 +83,6 @@ const RecommendationPanel = ({ bodyGoals }: RecommendationPanelProps) => {
       newPaths[k] = Math.max(0, Math.round(paths[k] - diff * proportion));
     });
 
-    // Ensure total is 100
     const total = Object.values(newPaths).reduce((s, v) => s + v, 0);
     if (total !== 100) {
       const adjustKey = otherKeys.find((k) => newPaths[k] > 0) || otherKeys[0];
@@ -100,11 +98,9 @@ const RecommendationPanel = ({ bodyGoals }: RecommendationPanelProps) => {
       setShowKeyInput(true);
       return;
     }
-
     setLoading(true);
     setError(null);
     setResult(null);
-
     try {
       const rec = await getRecommendation(bodyGoals, paths, key);
       setResult(rec);
@@ -116,156 +112,148 @@ const RecommendationPanel = ({ bodyGoals }: RecommendationPanelProps) => {
   };
 
   return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <h3 className="font-display text-sm font-semibold text-foreground uppercase tracking-wider">
-          Path to Goal
-        </h3>
-        {keySet ? (
-          <button
-            onClick={handleRemoveKey}
-            className="text-[10px] text-muted-foreground hover:text-destructive transition-colors font-body flex items-center gap-1"
-          >
-            <Key className="h-2.5 w-2.5" /> Change Key
-          </button>
-        ) : (
-          <button
-            onClick={() => setShowKeyInput(true)}
-            className="text-[10px] text-primary hover:text-primary/80 transition-colors font-body flex items-center gap-1"
-          >
-            <Key className="h-2.5 w-2.5" /> Set API Key
-          </button>
-        )}
-      </div>
-
-      {/* API Key Input */}
-      {showKeyInput && (
-        <div className="space-y-2 p-3 rounded-lg border border-border bg-muted/30 animate-fade-in">
-          <p className="text-[10px] text-muted-foreground font-body">
-            Enter your{" "}
-            <a
-              href="https://aistudio.google.com/apikey"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-primary underline"
-            >
-              Google Gemini API key
-            </a>{" "}
-            (free tier available). Stored locally in your browser only.
-          </p>
-          <div className="flex gap-2">
-            <Input
-              type="password"
-              placeholder="AIza..."
-              value={apiKey}
-              onChange={(e) => setApiKeyState(e.target.value)}
-              className="text-xs h-7"
-              onKeyDown={(e) => e.key === "Enter" && handleSaveKey()}
-            />
-            <Button size="sm" onClick={handleSaveKey} className="h-7 text-xs px-2">
-              Save
-            </Button>
-            <Button size="sm" variant="ghost" onClick={() => setShowKeyInput(false)} className="h-7 text-xs px-1">
-              <X className="h-3 w-3" />
-            </Button>
-          </div>
+    /* MAIN WRAPPER: Centered and responsive */
+    <div className="w-full max-w-4xl mx-auto mt-12 px-4 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      
+      {/* ENHANCED PANEL: Larger and prominent */}
+      <div className="relative overflow-hidden rounded-2xl border border-primary/20 bg-card/30 backdrop-blur-xl p-8 shadow-2xl">
+        <div className="absolute top-0 right-0 p-4">
+           {keySet ? (
+            <button onClick={handleRemoveKey} className="text-xs text-muted-foreground hover:text-destructive flex items-center gap-1.5 opacity-60 hover:opacity-100 transition-all">
+              <Key className="h-3 w-3" /> Change Key
+            </button>
+          ) : (
+            <button onClick={() => setShowKeyInput(true)} className="text-xs text-primary hover:text-primary/80 flex items-center gap-1.5 font-medium">
+              <Key className="h-3.5 w-3.5" /> Set API Key
+            </button>
+          )}
         </div>
-      )}
 
-      {/* Path preference sliders */}
-      <div className="space-y-2">
-        {(Object.keys(paths) as (keyof PathPreferences)[]).map((key) => (
-          <div key={key} className="space-y-1">
-            <div className="flex justify-between text-xs font-body">
-              <span className="text-foreground/80 flex items-center gap-1.5">
-                <span>{pathIcons[key]}</span>
-                {key.charAt(0).toUpperCase() + key.slice(1)}
-              </span>
-              <span className="text-muted-foreground tabular-nums">{paths[key]}%</span>
+        <div className="flex flex-col items-center mb-8">
+          <div className="bg-primary/10 p-3 rounded-full mb-4">
+            <Settings2 className="h-6 w-6 text-primary" />
+          </div>
+          <h3 className="font-display text-2xl font-bold text-foreground tracking-tight text-center">
+            AI Path Customization
+          </h3>
+          <p className="text-sm text-muted-foreground mt-2 text-center max-w-md">
+            Balance your strategy. Our AI adjusts the intensity of each pillar to match your physical profile.
+          </p>
+        </div>
+
+        {/* API Key Input Overlay */}
+        {showKeyInput && (
+          <div className="mb-8 p-4 rounded-xl border border-primary/30 bg-primary/5 animate-in zoom-in-95 duration-200">
+            <div className="flex justify-between items-center mb-3">
+               <p className="text-xs text-foreground font-medium">Connect Gemini AI</p>
+               <Button variant="ghost" size="icon" onClick={() => setShowKeyInput(false)} className="h-6 w-6"><X className="h-4 w-4" /></Button>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="h-1.5 rounded-full bg-muted overflow-hidden flex-1">
-                <div
-                  className={`h-full rounded-full ${pathColors[key]} transition-all`}
+            <div className="flex gap-3">
+              <Input
+                type="password"
+                placeholder="Paste your API Key here..."
+                value={apiKey}
+                onChange={(e) => setApiKeyState(e.target.value)}
+                className="bg-background/50 h-11"
+              />
+              <Button onClick={handleSaveKey} className="h-11 px-6">Save Key</Button>
+            </div>
+          </div>
+        )}
+
+        {/* LARGE SLIDERS GRID */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8 mb-10">
+          {(Object.keys(paths) as (keyof PathPreferences)[]).map((key) => (
+            <div key={key} className="group space-y-4 p-4 rounded-xl hover:bg-muted/30 transition-colors">
+              <div className="flex justify-between items-end">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl grayscale group-hover:grayscale-0 transition-all">{pathIcons[key]}</span>
+                  <span className="font-display font-semibold text-lg capitalize tracking-wide">{key}</span>
+                </div>
+                <span className="text-xl font-bold tabular-nums text-primary">{paths[key]}%</span>
+              </div>
+              
+              <div className="relative py-2">
+                 <Slider
+                  value={[paths[key]]}
+                  onValueChange={(v) => handlePathChange(key, v)}
+                  max={100}
+                  min={0}
+                  step={5}
+                  className="cursor-pointer z-10"
+                />
+                <div 
+                  className={`absolute bottom-0 left-0 h-1 rounded-full ${pathColors[key]} opacity-20 blur-sm transition-all`}
                   style={{ width: `${paths[key]}%` }}
                 />
               </div>
-              <Slider
-                value={[paths[key]]}
-                onValueChange={(v) => handlePathChange(key, v)}
-                max={100}
-                min={0}
-                step={5}
-                className="cursor-pointer flex-1"
-              />
             </div>
-          </div>
-        ))}
-        <p className="text-[9px] text-muted-foreground/60 font-body text-center">
-          Total always equals 100% — adjusting one redistributes the rest.
-        </p>
+          ))}
+        </div>
+
+        {/* ENHANCED ACTION BUTTON */}
+        <div className="flex flex-col items-center gap-4">
+          <Button
+            onClick={handleGenerate}
+            disabled={loading}
+            className="w-full max-w-sm h-14 text-lg font-bold shadow-lg shadow-primary/20 transition-all active:scale-95"
+            variant="default"
+          >
+            {loading ? (
+              <>
+                <Loader2 className="h-5 w-5 mr-3 animate-spin" />
+                Processing Bio-Data...
+              </>
+            ) : (
+              <>
+                <Sparkles className="h-5 w-5 mr-3" />
+                Generate My AI Transformation Path
+              </>
+            )}
+          </Button>
+          <p className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-medium">
+            Proprietary Path Redistribution Logic Active
+          </p>
+        </div>
       </div>
 
-      {/* Generate button */}
-      <Button
-        onClick={handleGenerate}
-        disabled={loading}
-        variant="hero"
-        size="sm"
-        className="w-full text-xs"
-      >
-        {loading ? (
-          <>
-            <Loader2 className="h-3 w-3 mr-1.5 animate-spin" />
-            Analyzing...
-          </>
-        ) : (
-          <>
-            <Sparkles className="h-3 w-3 mr-1.5" />
-            Get AI Recommendation
-          </>
-        )}
-      </Button>
-
-      {/* Error */}
-      {error && (
-        <div className="flex items-start gap-2 p-2.5 rounded-lg border border-destructive/30 bg-destructive/5 animate-fade-in">
-          <AlertTriangle className="h-3.5 w-3.5 text-destructive mt-0.5 flex-shrink-0" />
-          <p className="text-[10px] text-destructive font-body">{error}</p>
-        </div>
-      )}
-
-      {/* Results */}
-      {result && (
-        <div className="space-y-3 animate-fade-in">
-          <div className="p-3 rounded-lg border border-primary/20 bg-primary/5">
-            <p className="text-xs font-body text-foreground font-medium">{result.summary}</p>
-          </div>
-
-          {result.timeline && (
-            <div className="p-2.5 rounded-lg bg-muted/50 border border-border">
-              <span className="text-[10px] text-muted-foreground font-body">⏱ </span>
-              <span className="text-[10px] text-foreground font-body">{result.timeline}</span>
+      {/* RESULTS AREA: Large and Readable */}
+      {(result || error) && (
+        <div className="space-y-6 pb-20">
+          {error && (
+            <div className="flex items-center gap-3 p-6 rounded-2xl border border-destructive/50 bg-destructive/10 text-destructive animate-in fade-in">
+              <AlertTriangle className="h-6 w-6" />
+              <p className="font-medium">{error}</p>
             </div>
           )}
 
-          {result.diet && (
-            <RecommendationSection icon="🥗" title="Diet" content={result.diet} color="border-green-500/30" />
-          )}
-          {result.exercise && (
-            <RecommendationSection icon="🏋️" title="Exercise" content={result.exercise} color="border-blue-500/30" />
-          )}
-          {result.medical && (
-            <RecommendationSection icon="⚕️" title="Medical" content={result.medical} color="border-amber-500/30" />
-          )}
-          {result.supplements && (
-            <RecommendationSection icon="💊" title="Supplements" content={result.supplements} color="border-pink-500/30" />
-          )}
+          {result && (
+            <div className="animate-in fade-in slide-in-from-top-4 duration-500 space-y-6">
+              <div className="p-8 rounded-2xl border border-primary/20 bg-primary/5 text-center">
+                <h4 className="text-primary text-xs font-bold uppercase tracking-[0.3em] mb-4">Core Strategy Summary</h4>
+                <p className="text-xl font-body leading-relaxed">{result.summary}</p>
+                {result.timeline && (
+                  <div className="mt-6 inline-flex items-center gap-2 px-4 py-2 bg-background rounded-full border border-border text-sm font-semibold">
+                    <span className="text-primary">⏱ Expected Timeline:</span> {result.timeline}
+                  </div>
+                )}
+              </div>
 
-          {result.disclaimer && (
-            <p className="text-[9px] text-muted-foreground/60 font-body italic leading-relaxed">
-              ⚠️ {result.disclaimer}
-            </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {result.diet && <LargeSection icon="🥗" title="Dietary Blueprint" content={result.diet} color="border-green-500/30" />}
+                {result.exercise && <LargeSection icon="🏋️" title="Training Protocol" content={result.exercise} color="border-blue-500/30" />}
+                {result.medical && <LargeSection icon="⚕️" title="Medical Oversight" content={result.medical} color="border-amber-500/30" />}
+                {result.supplements && <LargeSection icon="💊" title="Supplement Stack" content={result.supplements} color="border-pink-500/30" />}
+              </div>
+
+              {result.disclaimer && (
+                <div className="p-4 rounded-xl bg-muted/30 border border-border">
+                   <p className="text-xs text-muted-foreground/80 italic text-center">
+                    ⚠️ {result.disclaimer}
+                  </p>
+                </div>
+              )}
+            </div>
           )}
         </div>
       )}
@@ -273,22 +261,14 @@ const RecommendationPanel = ({ bodyGoals }: RecommendationPanelProps) => {
   );
 };
 
-const RecommendationSection = ({
-  icon,
-  title,
-  content,
-  color,
-}: {
-  icon: string;
-  title: string;
-  content: string;
-  color: string;
-}) => (
-  <div className={`p-2.5 rounded-lg border ${color} bg-card/50 space-y-1`}>
-    <h4 className="text-[10px] font-display font-semibold uppercase tracking-wider text-foreground flex items-center gap-1.5">
-      <span>{icon}</span> {title}
-    </h4>
-    <div className="text-[11px] text-foreground/80 font-body leading-relaxed prose prose-xs max-w-none">
+/* ENHANCED CONTENT CARD */
+const LargeSection = ({ icon, title, content, color }: { icon: string; title: string; content: string; color: string }) => (
+  <div className={`p-6 rounded-2xl border ${color} bg-card hover:shadow-md transition-shadow space-y-4`}>
+    <div className="flex items-center gap-3 pb-2 border-b border-border/50">
+      <span className="text-xl">{icon}</span>
+      <h4 className="font-display font-bold text-foreground tracking-wide">{title}</h4>
+    </div>
+    <div className="text-sm text-foreground/90 font-body leading-relaxed prose prose-sm max-w-none prose-invert">
       <ReactMarkdown>{content}</ReactMarkdown>
     </div>
   </div>
