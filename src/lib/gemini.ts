@@ -22,15 +22,15 @@ export interface RecommendationResult {
 }
 
 export function getGeminiKey(): string | null {
-  return localStorage.getItem("taylour_gemini_key");
+  return localStorage.getItem("modifAI_gemini_key");
 }
 
 export function setGeminiKey(key: string) {
-  localStorage.setItem("taylour_gemini_key", key);
+  localStorage.setItem("modifAI_gemini_key", key);
 }
 
 export function removeGeminiKey() {
-  localStorage.removeItem("taylour_gemini_key");
+  localStorage.removeItem("modifAI_gemini_key");
 }
 
 export async function getRecommendation(

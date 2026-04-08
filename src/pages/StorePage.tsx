@@ -86,7 +86,7 @@ export default function StorePage() {
             Optimize Your <span className="text-primary">Protocol</span>
           </h1>
           <p className="text-muted-foreground text-sm md:text-base leading-relaxed">
-            Curated supplements and gear algorithmically matched to your Taylour Studio biometric goals.
+            Curated supplements and gear algorithmically matched to your modifAI Studio biometric goals.
           </p>
         </div>
 

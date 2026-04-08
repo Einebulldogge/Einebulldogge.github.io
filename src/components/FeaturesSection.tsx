@@ -28,7 +28,7 @@ const FeaturesSection = () => {
     <section id="features" className="py-24 md:py-32">
       <div className="container mx-auto px-6">
         <div className="text-center mb-16 space-y-4">
-          <p className="text-sm uppercase tracking-[0.3em] text-primary font-body font-medium">Why Taylour</p>
+          <p className="text-sm uppercase tracking-[0.3em] text-primary font-body font-medium">Why modifAI</p>
           <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground">
             Built Around <span className="text-gradient-gold italic">You</span>
           </h2>

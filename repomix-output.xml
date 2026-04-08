@@ -4573,7 +4573,7 @@ const FeaturesSection = () => {
     <section id="features" className="py-24 md:py-32">
       <div className="container mx-auto px-6">
         <div className="text-center mb-16 space-y-4">
-          <p className="text-sm uppercase tracking-[0.3em] text-primary font-body font-medium">Why Taylour</p>
+          <p className="text-sm uppercase tracking-[0.3em] text-primary font-body font-medium">Why modifAI</p>
           <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground">
             Built Around <span className="text-gradient-gold italic">You</span>
           </h2>
@@ -4614,7 +4614,7 @@ const Footer = () => {
       <div className="container mx-auto px-6">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           <a href="/" className="font-display text-xl font-bold text-gradient-gold tracking-wide">
-            Taylour
+            modifAI
           </a>
           <div className="flex gap-8">
             <a href="#how-it-works" className="text-sm text-muted-foreground hover:text-foreground transition-colors">How It Works</a>
@@ -4622,7 +4622,7 @@ const Footer = () => {
             <a href="#pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Pricing</a>
           </div>
           <p className="text-xs text-muted-foreground">
-            &copy; {new Date().getFullYear()} Taylour. All rights reserved.
+            &copy; {new Date().getFullYear()} modifAI. All rights reserved.
           </p>
         </div>
       </div>
@@ -4667,7 +4667,7 @@ const HowItWorksSection = () => {
         <div className="text-center mb-16 space-y-4">
           <p className="text-sm uppercase tracking-[0.3em] text-primary font-body font-medium">The Process</p>
           <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground">
-            How Taylour Works
+            How modifAI Works
           </h2>
         </div>
 
@@ -4708,7 +4708,7 @@ const Navbar = () => {
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
       <div className="container mx-auto flex h-16 items-center justify-between px-6">
         <a href="/" className="font-display text-2xl font-bold text-gradient-gold tracking-wide">
-          Taylour
+          modifAI
         </a>
         <div className="hidden md:flex items-center gap-8">
           <a href="#how-it-works" className="text-sm text-muted-foreground hover:text-foreground transition-colors">How It Works</a>
@@ -5091,15 +5091,15 @@ export interface RecommendationResult {
 }
 
 export function getGeminiKey(): string | null {
-  return localStorage.getItem("taylour_gemini_key");
+  return localStorage.getItem("modifAI_gemini_key");
 }
 
 export function setGeminiKey(key: string) {
-  localStorage.setItem("taylour_gemini_key", key);
+  localStorage.setItem("modifAI_gemini_key", key);
 }
 
 export function removeGeminiKey() {
-  localStorage.removeItem("taylour_gemini_key");
+  localStorage.removeItem("modifAI_gemini_key");
 }
 
 export async function getRecommendation(
@@ -5742,11 +5742,11 @@ export default Index;
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Taylour — Look the Way You Want To</title>
-    <meta name="description" content="Taylour helps you visualize and achieve your ideal look through personalized diet, exercise, and medical guidance." />
-    <meta name="author" content="Taylour" />
+    <title>modifAI — Look the Way You Want To</title>
+    <meta name="description" content="modifAI helps you visualize and achieve your ideal look through personalized diet, exercise, and medical guidance." />
+    <meta name="author" content="modifAI" />
 
-    <meta property="og:title" content="Taylour — Look the Way You Want To" />
+    <meta property="og:title" content="modifAI — Look the Way You Want To" />
     <meta property="og:description" content="Visualize and achieve your ideal look through personalized transformation plans." />
     <meta property="og:type" content="website" />
     <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
@@ -6678,7 +6678,7 @@ const StudioPage = () => {
           <span className="text-sm font-body">Back</span>
         </Link>
         <div className="flex-1 text-center">
-          <span className="font-display text-lg font-bold text-gradient-gold">Taylour Studio</span>
+          <span className="font-display text-lg font-bold text-gradient-gold">modifAI Studio</span>
         </div>
         <Button variant="hero" size="sm" className="text-xs">
           <Download className="h-3 w-3 mr-1" />

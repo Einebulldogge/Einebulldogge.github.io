@@ -31,7 +31,7 @@ const HowItWorksSection = () => {
         <div className="text-center mb-16 space-y-4">
           <p className="text-sm uppercase tracking-[0.3em] text-primary font-body font-medium">The Process</p>
           <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground">
-            How Taylour Works
+            How modifAI Works
           </h2>
         </div>
 

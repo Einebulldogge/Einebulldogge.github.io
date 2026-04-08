@@ -147,7 +147,7 @@ const StudioPage = () => {
           <span className="text-sm font-body">Back</span>
         </Link>
         <div className="flex-1 text-center">
-          <span className="font-display text-lg font-bold text-gradient-gold">Taylour Studio</span>
+          <span className="font-display text-lg font-bold text-gradient-gold">modifAI Studio</span>
         </div>
         <Button variant="outline" size="sm" className="text-xs">
           <Download className="h-3 w-3 mr-1" /> Save

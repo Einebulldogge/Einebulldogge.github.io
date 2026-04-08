@@ -49,7 +49,7 @@ export default function HeroSection() {
           </h1>
 
           <p className="text-lg text-muted-foreground leading-relaxed max-w-md">
-            Taylour maps your body goals to a precise, personalised plan —
+            modifAI maps your body goals to a precise, personalised plan —
             combining AI‑powered insights across diet, training, and longevity
             protocols.
           </p>
