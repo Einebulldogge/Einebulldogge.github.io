@@ -57,7 +57,7 @@ export default function BiometricBody() {
 
       {/* Wireframe body image */}
       <div
-        className="relative w-[260px] md:w-[300px] h-[480px] md:h-[540px] transition-all duration-1000"
+        className="relative w-[340px] md:w-[450px] h-[600px] md:h-[800px] transition-all duration-1000"
         style={{
           opacity: visible ? 1 : 0,
           transform: visible ? "translateY(0)" : "translateY(20px)",

@@ -15,7 +15,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 220 20% 10%;
 
-    --primary: 40 65% 50%;
+    --primary: 146 28% 28%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 152 45% 45%;
@@ -53,10 +53,10 @@
     --font-display: 'Playfair Display', serif;
     --font-body: 'DM Sans', sans-serif;
 
-    --gradient-gold: linear-gradient(135deg, hsl(40 65% 50%), hsl(40 70% 65%));
-    --gradient-dark: linear-gradient(180deg, hsl(220 10% 95%), hsl(220 10% 92%));
-    --shadow-gold: 0 4px 30px -5px hsl(40 65% 50% / 0.25);
-    --shadow-card: 0 8px 40px -10px hsl(220 10% 50% / 0.1);
+    --gradient-gold: linear-gradient(135deg, hsl(147, 55%, 23%), hsl(131, 59%, 11%));
+    --gradient-dark: linear-gradient(180deg, hsl(146, 65%, 35%), hsl(129, 57%, 28%));
+    --shadow-gold: 0 4px 30px -5px hsla(128, 60%, 13%, 0.25);
+    --shadow-card: 0 8px 40px -10px hsla(133, 52%, 29%, 0.1);
   }
 }
 
